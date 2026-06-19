@@ -67,3 +67,7 @@ node src/app.js
 ## 文档书写规范
 
 所有知识库文档请遵循 `knowledge-docs/template.md`
+
+## 更新记录
+
+- 2026-06-19: 首次提交，完成36篇知识库文档创建
