@@ -7,3 +7,4 @@ build/
 .cache/
 web-frontend/node_modules/
 server/node_modules/
+server/chroma-db/
