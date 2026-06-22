@@ -10,7 +10,7 @@
 |------|------|----------|
 | Phase 1: 项目初始化 | ✅ 完成 | Day 1 |
 | Phase 2: 知识库文档创建 | ✅ 完成 | Day 1 |
-| Phase 3: 后端服务开发 | 🔲 待开始 | Day 2-3 |
+| Phase 3: 后端服务开发 | ✅ 完成 | Day 2-3 |
 | Phase 4: 前端页面开发 | 🔲 待开始 | Day 4-5 |
 | Phase 5: RAG 功能集成 | 🔲 待开始 | Day 6-7 |
 | Phase 6: 测试与优化 | 🔲 待开始 | Day 8-9 |
@@ -39,28 +39,32 @@
 
 ---
 
-## Phase 3: 后端服务开发 🔲
+## Phase 3: 后端服务开发 ✅
 
 ### 3.1 环境配置
-- [ ] 安装依赖（express, chromadb, @minimaxai/node-sdk）
-- [ ] 配置 TypeScript
-- [ ] 配置 tsconfig.json
+- [x] 安装依赖（express, chromadb, dotenv, cors, morgan）
+- [x] 配置 TypeScript
+- [x] 配置 tsconfig.json
+- [x] 配置 eslint
 
 ### 3.2 数据库服务
-- [ ] 创建 Chroma DB 客户端
-- [ ] 实现文档向量化存储
-- [ ] 实现向量相似度检索
+- [x] 创建 Chroma DB 客户端（src/services/chroma.ts）
+- [x] 实现文档向量化存储
+- [x] 实现向量相似度检索
 
 ### 3.3 API 接口
-- [ ] 创建文档上传接口
-- [ ] 创建问答接口
-- [ ] 创建文档列表接口
-- [ ] 创建文档删除接口
+- [x] 创建文档上传接口（POST /api/documents/upload）
+- [x] 创建批量上传接口（POST /api/documents/batch-upload）
+- [x] 创建问答接口（POST /api/chat）
+- [x] 创建流式问答接口（POST /api/chat/stream）
+- [x] 创建文档统计接口（GET /api/documents/stats）
+- [x] 创建文档删除接口（DELETE /api/documents/:id）
 
 ### 3.4 业务逻辑
-- [ ] 实现 RAG 检索增强生成
-- [ ] 实现文档分片处理
-- [ ] 实现上下文管理
+- [x] 实现 RAG 检索增强生成（src/services/minimax.ts）
+- [x] 实现文档分片处理（src/utils/textSplitter.ts）
+- [x] 实现上下文管理
+- [x] 创建文档上传脚本（src/upload-docs.ts）
 
 ---
 
@@ -137,3 +141,4 @@ PORT=3000
 | 日期 | 进度 | 备注 |
 |------|------|------|
 | 2026-06-19 | Phase 1 & 2 完成 | 项目初始化 + 36篇知识库文档 |
+| 2026-06-22 | Phase 3 完成 | 后端服务开发完成（Express + Chroma + Minimax API） |
