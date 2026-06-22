@@ -35,9 +35,14 @@ app.get('/', (req, res) => {
       <li>POST /api/documents/upload - Upload document</li>
       <li>POST /api/documents/batch-upload - Batch upload documents</li>
       <li>GET /api/documents/stats - Get collection stats</li>
+      <li>GET /api/documents/list - Get document list</li>
+      <li>GET /api/documents/content/:source - Get document content</li>
       <li>DELETE /api/documents/:id - Delete document</li>
       <li>POST /api/chat - Chat with RAG</li>
       <li>POST /api/chat/stream - Stream chat with RAG</li>
+      <li>GET /api/chat/logs - Get chat logs (today)</li>
+      <li>GET /api/chat/logs/stats - Get log statistics</li>
+      <li>GET /api/chat/logs/:id - Get specific log by ID</li>
     </ul>
   `);
 });

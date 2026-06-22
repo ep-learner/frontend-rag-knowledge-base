@@ -29,6 +29,11 @@ interface CompletionResponse {
       content: string;
     };
   }>;
+  usage?: {
+    prompt_tokens?: number;
+    completion_tokens?: number;
+    total_tokens?: number;
+  };
 }
 
 class MinimaxService {
@@ -100,11 +105,14 @@ class MinimaxService {
   }
 
   async generate(
-    prompt: string, 
-    context?: string, 
+    prompt: string,
+    context?: string,
     options: CompletionOptions = {},
     history?: Message[]
-  ): Promise<string> {
+  ): Promise<{
+    response: string;
+    usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
+  }> {
     const messages: Message[] = [];
 
     if (context) {
@@ -126,7 +134,10 @@ class MinimaxService {
     return this.callApi(messages, options);
   }
 
-  private async callApi(messages: Message[], options: CompletionOptions): Promise<string> {
+  private async callApi(
+    messages: Message[],
+    options: CompletionOptions
+  ): Promise<{ response: string; usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number } }> {
     return new Promise((resolve, reject) => {
       const url = new URL(this.baseUrl);
       const body = JSON.stringify({
@@ -162,7 +173,10 @@ class MinimaxService {
           try {
             const response: CompletionResponse = JSON.parse(data);
             if (response.choices && response.choices.length > 0) {
-              resolve(response.choices[0].message.content);
+              resolve({
+                response: response.choices[0].message.content,
+                usage: response.usage,
+              });
             } else {
               reject(new Error(`API response error: ${data}`));
             }
@@ -182,12 +196,15 @@ class MinimaxService {
   }
 
   async generateStream(
-    prompt: string, 
-    context?: string, 
+    prompt: string,
+    context?: string,
     onChunk?: (chunk: string) => void,
     options: CompletionOptions = {},
     history?: Message[]
-  ): Promise<string> {
+  ): Promise<{
+    response: string;
+    usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
+  }> {
     return new Promise((resolve, reject) => {
       const url = new URL(this.baseUrl);
       const messages: Message[] = [];
@@ -242,7 +259,7 @@ class MinimaxService {
             if (line.startsWith('data: ')) {
               const data = line.substring(6).trim();
               if (data === '[DONE]') {
-                resolve(fullResponse);
+                resolve({ response: fullResponse });
                 return;
               }
               try {
@@ -260,7 +277,7 @@ class MinimaxService {
         });
 
         res.on('end', () => {
-          resolve(fullResponse);
+          resolve({ response: fullResponse });
         });
       });
 

@@ -5,6 +5,8 @@ node_modules/
 dist/
 build/
 .cache/
-web-frontend/node_modules/
+client/node_modules/
 server/node_modules/
 server/chroma-db/
+server/logs/
+*.local
