@@ -1,15 +1,18 @@
 import fs from 'fs';
 import path from 'path';
-import { chromaService } from './services/chroma';
+import { chromaService, EmbeddingMode } from './services/chroma';
 import { splitText, extractTitle } from './utils/textSplitter';
 
-async function uploadDocuments() {
+async function uploadDocuments(embeddingMode: EmbeddingMode = 'semantic') {
   const docsPath = path.join(__dirname, '../../knowledge-docs');
   
   if (!fs.existsSync(docsPath)) {
     console.error(`Directory not found: ${docsPath}`);
     process.exit(1);
   }
+
+  console.log(`\nEmbedding mode: ${embeddingMode === 'semantic' ? '语义向量 (Minimax API)' : '简单哈希 (本地)'}`);
+  console.log(`Note: ${embeddingMode === 'semantic' ? '将消耗 Token，上传时间较长' : '不消耗 Token，上传速度快'}`);
 
   const dirs = fs.readdirSync(docsPath, { withFileTypes: true })
     .filter(dir => dir.isDirectory())
@@ -36,7 +39,7 @@ async function uploadDocuments() {
           title,
         }));
 
-        await chromaService.addDocuments(chunks, metadatas, ids);
+        await chromaService.addDocuments(chunks, metadatas, ids, embeddingMode);
 
         totalFiles++;
         totalChunks += chunks.length;
@@ -58,7 +61,10 @@ async function uploadDocuments() {
   console.log(`Collection document count: ${stats.count}`);
 }
 
-uploadDocuments().catch(error => {
+const args = process.argv.slice(2);
+const embeddingMode: EmbeddingMode = args.includes('--simple') ? 'simple' : 'semantic';
+
+uploadDocuments(embeddingMode).catch(error => {
   console.error('Error uploading documents:', error);
   process.exit(1);
 });

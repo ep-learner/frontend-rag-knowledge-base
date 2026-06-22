@@ -1,12 +1,12 @@
 # Minimax 个人前端 RAG 知识库
 
-基于 Minimax 大模型 + Chroma 向量数据库搭建的个人前端技术问答系统。
+基于 Minimax 大模型 + 向量数据库搭建的个人前端技术问答系统。
 
 ## 技术栈
 
-- 后端：Node.js 18+ + Express + @minimaxai/node-sdk
-- 前端：Vite + React
-- 向量检索：Chroma DB（本地）
+- 后端：Node.js 18+ + Express + TypeScript
+- 前端：Vite + React + TypeScript + Tailwind CSS
+- 向量检索：内存向量存储（纯 JS 实现）
 - 包管理器：pnpm
 
 ## 项目结构
@@ -15,6 +15,18 @@
 frontend-rag-knowledge-base/
 ├── knowledge-docs/     # 前端知识库原始MD文档
 ├── server/             # RAG后端服务
+│   ├── src/
+│   │   ├── app.ts              # 主入口文件
+│   │   ├── services/
+│   │   │   ├── chroma.ts       # 向量数据库服务
+│   │   │   └── minimax.ts      # Minimax API 集成
+│   │   ├── routes/
+│   │   │   ├── chat.ts         # 问答接口
+│   │   │   └── documents.ts    # 文档管理接口
+│   │   ├── utils/
+│   │   │   └── textSplitter.ts # 文档分片工具
+│   │   └── upload-docs.ts      # 文档批量上传脚本
+│   └── .env                    # 环境变量（本地）
 └── web-frontend/       # 前端页面
 ```
 
@@ -29,6 +41,13 @@ cd server
 copy .env.example .env
 ```
 
+编辑 `.env` 文件，填入你的 Minimax API Key：
+
+```bash
+MINIMAX_API_KEY=your-api-key-here
+MINIMAX_GROUP_ID=your-group-id
+```
+
 ### 2. 安装依赖
 
 ```bash
@@ -40,29 +59,49 @@ pnpm install
 
 ```bash
 cd server
-node run-upload.js
+pnpm upload
 ```
+
+这会读取 `knowledge-docs/` 目录下的所有 Markdown 文件，分片后存入向量数据库。
 
 ### 4. 启动后端服务
 
 ```bash
 cd server
-node src/app.js
+pnpm dev
 ```
+
+服务启动后访问：http://localhost:3000
+
+## API 接口
+
+| 方法 | 路径 | 功能 |
+|------|------|------|
+| GET | /api/health | 健康检查 |
+| POST | /api/documents/upload | 上传单篇文档 |
+| POST | /api/documents/batch-upload | 批量上传文档 |
+| GET | /api/documents/stats | 获取文档统计 |
+| DELETE | /api/documents/:id | 删除文档 |
+| POST | /api/chat | RAG 问答 |
+| POST | /api/chat/stream | RAG 问答（流式） |
 
 ## Minimax 配置步骤
 
 1. 注册 [Minimax](https://www.minimax.chat/) 账号
 2. 创建应用，获取 API_KEY
-3. 将 API_KEY 填入 `server/.env` 文件
+3. 获取 GROUP_ID（在账户中心查看）
+4. 将 API_KEY 和 GROUP_ID 填入 `server/.env` 文件
+5. 充值账户余额（首次充值有优惠）
 
 ## 环境变量说明
 
 | 变量名 | 说明 | 默认值 |
 |--------|------|--------|
 | MINIMAX_API_KEY | Minimax API 密钥 | - |
-| MINIMAX_BASE_URL | API 基础地址 | https://api.minimaxi.com/anthropic |
-| CHROMA_DB_PATH | Chroma 数据库本地路径 | ./chroma-db |
+| MINIMAX_GROUP_ID | Minimax 组织 ID | - |
+| MINIMAX_BASE_URL | API 基础地址 | https://api.minimax.chat/v1/chat/completions |
+| CHROMA_DB_PATH | 数据库路径 | ./chroma-db |
+| PORT | 服务端口 | 3000 |
 
 ## 文档书写规范
 
@@ -71,3 +110,4 @@ node src/app.js
 ## 更新记录
 
 - 2026-06-19: 首次提交，完成36篇知识库文档创建
+- 2026-06-22: 完成后端服务开发，修复 API 地址和向量存储方案

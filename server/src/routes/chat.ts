@@ -1,12 +1,38 @@
 import express from 'express';
-import { chromaService } from '../services/chroma';
-import { minimaxService } from '../services/minimax';
+import { chromaService, EmbeddingMode } from '../services/chroma';
+import { minimaxService, Message } from '../services/minimax';
 
 const router = express.Router();
 
+interface ChatRequest {
+  query: string;
+  useRag?: boolean;
+  stream?: boolean;
+  embeddingMode?: EmbeddingMode;
+  temperature?: number;
+  maxTokens?: number;
+  topP?: number;
+  presencePenalty?: number;
+  frequencyPenalty?: number;
+  history?: Message[];
+  maxHistory?: number;
+}
+
 router.post('/', async (req, res) => {
   try {
-    const { query, useRag = true, stream = false } = req.body;
+    const {
+      query,
+      useRag = true,
+      stream = false,
+      embeddingMode = 'semantic',
+      temperature,
+      maxTokens,
+      topP,
+      presencePenalty,
+      frequencyPenalty,
+      history = [],
+      maxHistory = 10,
+    } = req.body as ChatRequest;
 
     if (!query) {
       return res.status(400).json({ error: 'query is required' });
@@ -15,7 +41,7 @@ router.post('/', async (req, res) => {
     let context = '';
 
     if (useRag) {
-      const results = await chromaService.query(query, 5);
+      const results = await chromaService.query(query, 5, embeddingMode);
       const relevantDocs = results.documents
         .map((doc, index) => ({
           content: doc,
@@ -31,21 +57,43 @@ router.post('/', async (req, res) => {
       }
     }
 
+    const trimmedHistory = history.slice(-maxHistory);
+
+    const completionOptions = {
+      temperature,
+      maxTokens,
+      topP,
+      presencePenalty,
+      frequencyPenalty,
+    };
+
     if (stream) {
       res.setHeader('Content-Type', 'text/event-stream');
       res.setHeader('Cache-Control', 'no-cache');
       res.setHeader('Connection', 'keep-alive');
 
       let fullResponse = '';
-      await minimaxService.generateStream(query, context, (chunk) => {
-        fullResponse += chunk;
-        res.write(`data: ${JSON.stringify({ chunk, done: false })}\n\n`);
-      });
+      await minimaxService.generateStream(
+        query,
+        context,
+        (chunk) => {
+          fullResponse += chunk;
+          res.write(`data: ${JSON.stringify({ chunk, done: false })}\n\n`);
+        },
+        completionOptions,
+        trimmedHistory
+      );
 
       res.write(`data: ${JSON.stringify({ chunk: '', done: true, fullResponse })}\n\n`);
       res.end();
     } else {
-      const response = await minimaxService.generate(query, context);
+      const response = await minimaxService.generate(
+        query,
+        context,
+        completionOptions,
+        trimmedHistory
+      );
+
       res.json({
         success: true,
         response,
@@ -64,7 +112,18 @@ router.post('/', async (req, res) => {
 
 router.post('/stream', async (req, res) => {
   try {
-    const { query, useRag = true } = req.body;
+    const {
+      query,
+      useRag = true,
+      embeddingMode = 'semantic',
+      temperature,
+      maxTokens,
+      topP,
+      presencePenalty,
+      frequencyPenalty,
+      history = [],
+      maxHistory = 10,
+    } = req.body as ChatRequest;
 
     if (!query) {
       return res.status(400).json({ error: 'query is required' });
@@ -73,7 +132,7 @@ router.post('/stream', async (req, res) => {
     let context = '';
 
     if (useRag) {
-      const results = await chromaService.query(query, 5);
+      const results = await chromaService.query(query, 5, embeddingMode);
       const relevantDocs = results.documents
         .map((doc, index) => ({
           content: doc,
@@ -89,13 +148,29 @@ router.post('/stream', async (req, res) => {
       }
     }
 
+    const trimmedHistory = history.slice(-maxHistory);
+
+    const completionOptions = {
+      temperature,
+      maxTokens,
+      topP,
+      presencePenalty,
+      frequencyPenalty,
+    };
+
     res.setHeader('Content-Type', 'text/event-stream');
     res.setHeader('Cache-Control', 'no-cache');
     res.setHeader('Connection', 'keep-alive');
 
-    await minimaxService.generateStream(query, context, (chunk) => {
-      res.write(`data: ${JSON.stringify({ content: chunk })}\n\n`);
-    });
+    await minimaxService.generateStream(
+      query,
+      context,
+      (chunk) => {
+        res.write(`data: ${JSON.stringify({ content: chunk })}\n\n`);
+      },
+      completionOptions,
+      trimmedHistory
+    );
 
     res.write(`data: ${JSON.stringify({ content: '', done: true })}\n\n`);
     res.end();

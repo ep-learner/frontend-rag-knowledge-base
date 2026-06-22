@@ -2,7 +2,7 @@
 
 ## 项目概述
 
-基于 Minimax 大模型 + Chroma 向量数据库搭建的个人前端技术问答系统。
+基于 Minimax 大模型 + 本地向量存储搭建的个人前端技术问答系统。
 
 ## 进度总览
 
@@ -12,7 +12,7 @@
 | Phase 2: 知识库文档创建 | ✅ 完成 | Day 1 |
 | Phase 3: 后端服务开发 | ✅ 完成 | Day 2-3 |
 | Phase 4: 前端页面开发 | 🔲 待开始 | Day 4-5 |
-| Phase 5: RAG 功能集成 | 🔲 待开始 | Day 6-7 |
+| Phase 5: RAG 功能集成 | ✅ 完成 | Day 2-3 |
 | Phase 6: 测试与优化 | 🔲 待开始 | Day 8-9 |
 | Phase 7: 部署上线 | 🔲 待开始 | Day 10 |
 
@@ -42,15 +42,16 @@
 ## Phase 3: 后端服务开发 ✅
 
 ### 3.1 环境配置
-- [x] 安装依赖（express, chromadb, dotenv, cors, morgan）
+- [x] 安装依赖（express, dotenv, cors, morgan, ts-node-dev）
 - [x] 配置 TypeScript
 - [x] 配置 tsconfig.json
 - [x] 配置 eslint
 
 ### 3.2 数据库服务
-- [x] 创建 Chroma DB 客户端（src/services/chroma.ts）
-- [x] 实现文档向量化存储
+- [x] 创建向量存储服务（src/services/chroma.ts）
+- [x] 实现文档向量化存储（Minimax Embedding API）
 - [x] 实现向量相似度检索
+- [x] 实现本地文件持久化（chroma-db/documents.json）
 
 ### 3.3 API 接口
 - [x] 创建文档上传接口（POST /api/documents/upload）
@@ -59,12 +60,14 @@
 - [x] 创建流式问答接口（POST /api/chat/stream）
 - [x] 创建文档统计接口（GET /api/documents/stats）
 - [x] 创建文档删除接口（DELETE /api/documents/:id）
+- [x] 创建健康检查接口（GET /api/health）
 
 ### 3.4 业务逻辑
 - [x] 实现 RAG 检索增强生成（src/services/minimax.ts）
 - [x] 实现文档分片处理（src/utils/textSplitter.ts）
 - [x] 实现上下文管理
 - [x] 创建文档上传脚本（src/upload-docs.ts）
+- [x] 集成 Minimax Embedding API（generateEmbedding）
 
 ---
 
@@ -88,12 +91,14 @@
 
 ---
 
-## Phase 5: RAG 功能集成 🔲
+## Phase 5: RAG 功能集成 ✅
 
-- [ ] 集成 Minimax API
-- [ ] 实现文档向量化流程
-- [ ] 实现检索结果注入
-- [ ] 优化检索精度
+- [x] 集成 Minimax ChatCompletion API
+- [x] 集成 Minimax Embedding API（embo-01）
+- [x] 实现文档向量化流程（上传时生成向量）
+- [x] 实现检索结果注入（query → embedding → search → context）
+- [x] 优化检索精度（语义匹配 vs 关键词匹配）
+- [x] 测试验证（React Hooks 问答测试通过）
 
 ---
 
@@ -119,7 +124,8 @@
 
 ```bash
 MINIMAX_API_KEY=your-minimax-api-key
-MINIMAX_BASE_URL=https://api.minimaxi.com/anthropic
+MINIMAX_GROUP_ID=your-group-id
+MINIMAX_BASE_URL=https://api.minimax.chat/v1/text/chatcompletion
 CHROMA_DB_PATH=./chroma-db
 PORT=3000
 ```
@@ -130,8 +136,8 @@ PORT=3000
 
 - 后端：Node.js 18+ + Express + TypeScript
 - 前端：Vite + React + TypeScript + Tailwind CSS
-- 向量数据库：Chroma DB（本地）
-- API：Minimax Anthropic-compatible API
+- 向量存储：本地文件存储（documents.json）+ Minimax Embedding API
+- API：Minimax ChatCompletion API + Embedding API
 - 包管理器：pnpm
 
 ---
@@ -141,4 +147,5 @@ PORT=3000
 | 日期 | 进度 | 备注 |
 |------|------|------|
 | 2026-06-19 | Phase 1 & 2 完成 | 项目初始化 + 36篇知识库文档 |
-| 2026-06-22 | Phase 3 完成 | 后端服务开发完成（Express + Chroma + Minimax API） |
+| 2026-06-22 | Phase 3 & 5 完成 | 后端服务开发完成，集成 Minimax API，RAG 功能测试通过 |
+| 2026-06-22 | 创建学习笔记 | RAG_LEARNING_NOTES.md 记录方案演进与技术细节 |
