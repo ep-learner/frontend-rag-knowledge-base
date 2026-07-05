@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import documentsRouter from './routes/documents';
 import chatRouter from './routes/chat';
 import { chromaService } from './services/chroma';
+import { error as apiError, ErrorCode } from './utils/response';
 
 dotenv.config();
 
@@ -21,8 +22,12 @@ app.use('/api/chat', chatRouter);
 
 app.get('/api/health', (req, res) => {
   res.json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
+    code: 0,
+    data: {
+      status: 'ok',
+      timestamp: new Date().toISOString(),
+    },
+    message: 'ok',
   });
 });
 
@@ -49,7 +54,10 @@ app.get('/', (req, res) => {
 
 app.use((error: any, req: express.Request, res: express.Response, next: express.NextFunction) => {
   console.error('Error:', error);
-  res.status(500).json({ error: error.message || 'Internal server error' });
+  const statusCode = error.statusCode || 500;
+  res.status(statusCode).json(
+    apiError(ErrorCode.INTERNAL_ERROR, error.message || 'Internal server error')
+  );
 });
 
 async function startServer() {

@@ -2,6 +2,7 @@ import express from 'express';
 import { chromaService, EmbeddingMode } from '../services/chroma';
 import { minimaxService, Message } from '../services/minimax';
 import { loggerService } from '../services/logger';
+import { success, error as apiError, ErrorCode } from '../utils/response';
 
 const router = express.Router();
 
@@ -50,7 +51,9 @@ router.post('/', async (req, res) => {
     }
 
     if (!actualQuery) {
-      return res.status(400).json({ error: 'query or messages is required' });
+      return res.status(400).json(
+        apiError(ErrorCode.BAD_REQUEST, 'query or messages is required')
+      );
     }
 
     // mode 参数优先于 embeddingMode
@@ -144,15 +147,15 @@ router.post('/', async (req, res) => {
         };
       }
 
-      res.json({
-        success: true,
+      res.json(success({
         response,
         context: context || null,
         sources: useRag ? context.split('---\n\n').map((s: string) => {
           const match = s.match(/来源:\s*(\S+)/);
           return match ? match[1] : 'unknown';
         }).filter(Boolean) : [],
-      });
+        tokenUsage,
+      }));
     }
 
     // 记录日志
@@ -189,7 +192,9 @@ router.post('/', async (req, res) => {
       error: (error as Error).message,
     });
 
-    res.status(500).json({ error: 'Failed to process request' });
+    res.status(500).json(
+      apiError(ErrorCode.INTERNAL_ERROR, 'Failed to process request')
+    );
   }
 });
 
@@ -209,7 +214,9 @@ router.post('/stream', async (req, res) => {
     } = req.body as ChatRequest;
 
     if (!query) {
-      return res.status(400).json({ error: 'query is required' });
+      return res.status(400).json(
+        apiError(ErrorCode.BAD_REQUEST, 'query is required')
+      );
     }
 
     let context = '';
@@ -259,7 +266,9 @@ router.post('/stream', async (req, res) => {
     res.end();
   } catch (error) {
     console.error('Error in stream chat:', error);
-    res.status(500).json({ error: 'Failed to process stream request' });
+    res.status(500).json(
+      apiError(ErrorCode.INTERNAL_ERROR, 'Failed to process stream request')
+    );
   }
 });
 
@@ -272,14 +281,15 @@ router.get('/logs', async (req, res) => {
     const { date, limit } = req.query;
     const logs = loggerService.getLogs(date as string, limit ? parseInt(limit as string) : 50);
 
-    res.json({
-      success: true,
+    res.json(success({
       logs,
       count: logs.length,
-    });
+    }));
   } catch (error) {
     console.error('Error getting logs:', error);
-    res.status(500).json({ error: 'Failed to get logs' });
+    res.status(500).json(
+      apiError(ErrorCode.INTERNAL_ERROR, 'Failed to get logs')
+    );
   }
 });
 
@@ -287,13 +297,12 @@ router.get('/logs/stats', async (req, res) => {
   try {
     const stats = loggerService.getStats();
 
-    res.json({
-      success: true,
-      stats,
-    });
+    res.json(success({ stats }));
   } catch (error) {
     console.error('Error getting log stats:', error);
-    res.status(500).json({ error: 'Failed to get log stats' });
+    res.status(500).json(
+      apiError(ErrorCode.INTERNAL_ERROR, 'Failed to get log stats')
+    );
   }
 });
 
@@ -303,16 +312,17 @@ router.get('/logs/:id', async (req, res) => {
     const log = loggerService.getLogById(id);
 
     if (!log) {
-      return res.status(404).json({ error: 'Log not found' });
+      return res.status(404).json(
+        apiError(ErrorCode.NOT_FOUND, 'Log not found')
+      );
     }
 
-    res.json({
-      success: true,
-      log,
-    });
+    res.json(success({ log }));
   } catch (error) {
     console.error('Error getting log:', error);
-    res.status(500).json({ error: 'Failed to get log' });
+    res.status(500).json(
+      apiError(ErrorCode.INTERNAL_ERROR, 'Failed to get log')
+    );
   }
 });
 

@@ -3,6 +3,7 @@ import fs from 'fs';
 import path from 'path';
 import { chromaService } from '../services/chroma';
 import { splitText, extractTitle } from '../utils/textSplitter';
+import { success, error as apiError, ErrorCode } from '../utils/response';
 
 const router = express.Router();
 
@@ -13,11 +14,9 @@ router.post('/upload', async (req, res) => {
     let filename: string;
 
     if (req.is('multipart/form-data')) {
-      // FormData 方式：从 req.file 获取（需要 multer）
-      // 暂时不支持，返回错误提示
-      return res.status(400).json({
-        error: 'multipart/form-data not supported. Please use JSON format with { content, filename }'
-      });
+      return res.status(400).json(
+        apiError(ErrorCode.BAD_REQUEST, 'multipart/form-data not supported. Please use JSON format with { content, filename }')
+      );
     } else {
       // JSON 方式
       content = req.body.content;
@@ -25,7 +24,9 @@ router.post('/upload', async (req, res) => {
     }
 
     if (!content || !filename) {
-      return res.status(400).json({ error: 'content and filename are required' });
+      return res.status(400).json(
+        apiError(ErrorCode.BAD_REQUEST, 'content and filename are required')
+      );
     }
 
     const chunks = splitText(content);
@@ -38,16 +39,16 @@ router.post('/upload', async (req, res) => {
 
     await chromaService.addDocuments(chunks, metadatas, ids);
 
-    res.json({
-      success: true,
-      message: `Document uploaded successfully`,
+    res.json(success({
       chunks: chunks.length,
       filename,
       title,
-    });
+    }, 'Document uploaded successfully'));
   } catch (error) {
     console.error('Error uploading document:', error);
-    res.status(500).json({ error: 'Failed to upload document' });
+    res.status(500).json(
+      apiError(ErrorCode.INTERNAL_ERROR, 'Failed to upload document')
+    );
   }
 });
 
@@ -56,13 +57,17 @@ router.post('/batch-upload', async (req, res) => {
     const { directory } = req.body;
 
     if (!directory) {
-      return res.status(400).json({ error: 'directory is required' });
+      return res.status(400).json(
+        apiError(ErrorCode.BAD_REQUEST, 'directory is required')
+      );
     }
 
     const docsPath = path.join(__dirname, '../../', directory);
 
     if (!fs.existsSync(docsPath)) {
-      return res.status(404).json({ error: 'Directory not found' });
+      return res.status(404).json(
+        apiError(ErrorCode.NOT_FOUND, 'Directory not found')
+      );
     }
 
     const files = fs.readdirSync(docsPath).filter(file => file.endsWith('.md'));
@@ -96,16 +101,16 @@ router.post('/batch-upload', async (req, res) => {
       }
     }
 
-    res.json({
-      success: true,
-      message: `Batch upload completed`,
+    res.json(success({
       totalFiles: files.length,
       successCount: results.filter(r => r.success).length,
       results,
-    });
+    }, 'Batch upload completed'));
   } catch (error) {
     console.error('Error batch uploading documents:', error);
-    res.status(500).json({ error: 'Failed to batch upload documents' });
+    res.status(500).json(
+      apiError(ErrorCode.INTERNAL_ERROR, 'Failed to batch upload documents')
+    );
   }
 });
 
@@ -120,14 +125,16 @@ router.get('/stats', async (req, res) => {
       uniqueSources.add(doc.metadata.source);
     });
 
-    res.json({
+    res.json(success({
       totalDocuments: uniqueSources.size,
       totalChunks: stats.count,
       categories: stats.categories,
-    });
+    }));
   } catch (error) {
     console.error('Error getting stats:', error);
-    res.status(500).json({ error: 'Failed to get stats' });
+    res.status(500).json(
+      apiError(ErrorCode.INTERNAL_ERROR, 'Failed to get stats')
+    );
   }
 });
 
@@ -166,14 +173,15 @@ router.get('/list', async (req, res) => {
       a.title.localeCompare(b.title)
     );
 
-    res.json({
-      success: true,
+    res.json(success({
       documents: docList,
       totalCount: docList.length,
-    });
+    }));
   } catch (error) {
     console.error('Error getting document list:', error);
-    res.status(500).json({ error: 'Failed to get document list' });
+    res.status(500).json(
+      apiError(ErrorCode.INTERNAL_ERROR, 'Failed to get document list')
+    );
   }
 });
 
@@ -189,7 +197,9 @@ router.get('/content/:source', async (req, res) => {
     );
 
     if (docChunks.length === 0) {
-      return res.status(404).json({ error: 'Document not found' });
+      return res.status(404).json(
+        apiError(ErrorCode.NOT_FOUND, 'Document not found')
+      );
     }
 
     // 按 chunk 顺序拼接内容
@@ -202,16 +212,17 @@ router.get('/content/:source', async (req, res) => {
       .map(chunk => chunk.content)
       .join('\n\n');
 
-    res.json({
-      success: true,
+    res.json(success({
       source: decodedSource,
       title: docChunks[0].metadata.title || decodedSource,
       content,
       chunkCount: docChunks.length,
-    });
+    }));
   } catch (error) {
     console.error('Error getting document content:', error);
-    res.status(500).json({ error: 'Failed to get document content' });
+    res.status(500).json(
+      apiError(ErrorCode.INTERNAL_ERROR, 'Failed to get document content')
+    );
   }
 });
 
@@ -219,13 +230,12 @@ router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     await chromaService.deleteDocument(id);
-    res.json({
-      success: true,
-      message: 'Document deleted',
-    });
+    res.json(success(null, 'Document deleted'));
   } catch (error) {
     console.error('Error deleting document:', error);
-    res.status(500).json({ error: 'Failed to delete document' });
+    res.status(500).json(
+      apiError(ErrorCode.INTERNAL_ERROR, 'Failed to delete document')
+    );
   }
 });
 

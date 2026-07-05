@@ -5,6 +5,27 @@ const api = axios.create({
   timeout: 30000,
 })
 
+export interface ApiResponse<T = any> {
+  code: number
+  data: T | null
+  message: string
+}
+
+api.interceptors.response.use(
+  (response) => {
+    const res = response.data as ApiResponse
+    if (res.code !== 0) {
+      console.error('API Error:', res.message)
+      return Promise.reject(new Error(res.message || 'Request failed'))
+    }
+    return response
+  },
+  (error) => {
+    console.error('Network Error:', error.message)
+    return Promise.reject(error)
+  }
+)
+
 export interface DocumentStats {
   totalDocuments: number
   totalChunks: number
@@ -48,23 +69,23 @@ export interface DocumentContent {
 
 export const documentAPI = {
   getStats: async (): Promise<DocumentStats> => {
-    const response = await api.get<DocumentStats>('/documents/stats')
-    return response.data
+    const response = await api.get<ApiResponse<DocumentStats>>('/documents/stats')
+    return response.data.data as DocumentStats
   },
 
   getList: async (): Promise<{ documents: DocumentListItem[]; totalCount: number }> => {
-    const response = await api.get<{ documents: DocumentListItem[]; totalCount: number }>('/documents/list')
-    return response.data
+    const response = await api.get<ApiResponse<{ documents: DocumentListItem[]; totalCount: number }>>('/documents/list')
+    return response.data.data as { documents: DocumentListItem[]; totalCount: number }
   },
 
   getContent: async (source: string): Promise<DocumentContent> => {
-    const response = await api.get<DocumentContent>(`/documents/content/${encodeURIComponent(source)}`)
-    return response.data
+    const response = await api.get<ApiResponse<DocumentContent>>(`/documents/content/${encodeURIComponent(source)}`)
+    return response.data.data as DocumentContent
   },
 
   upload: async (data: UploadRequest): Promise<UploadResponse> => {
-    const response = await api.post<UploadResponse>('/documents/upload', data)
-    return response.data
+    const response = await api.post<ApiResponse<UploadResponse>>('/documents/upload', data)
+    return response.data.data as UploadResponse
   },
 
   delete: async (id: string): Promise<void> => {
@@ -74,8 +95,8 @@ export const documentAPI = {
 
 export const chatAPI = {
   chat: async (request: ChatRequest): Promise<string> => {
-    const response = await api.post<{ response: string }>('/chat', request)
-    return response.data.response
+    const response = await api.post<ApiResponse<{ response: string; sources: string[] }>>('/chat', request)
+    return response.data.data?.response || ''
   },
 
   streamChat: (request: ChatRequest) => {
