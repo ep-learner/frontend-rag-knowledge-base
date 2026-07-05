@@ -20,6 +20,21 @@ class ChromaService {
   private isInitialized = false;
   private dbPath = path.join(__dirname, '../../chroma-db/documents.json');
 
+  setDbPath(dbPath: string): void {
+    this.dbPath = dbPath;
+    this.isInitialized = false;
+    this.documents.clear();
+  }
+
+  getDbPath(): string {
+    return this.dbPath;
+  }
+
+  reset(): void {
+    this.isInitialized = false;
+    this.documents.clear();
+  }
+
   async init(): Promise<void> {
     if (this.isInitialized) return;
 

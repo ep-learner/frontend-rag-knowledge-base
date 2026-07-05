@@ -1,6 +1,7 @@
 # 沙盒环境踩坑指南
 
-本文档记录沙盒环境中常见的问题及其解决方案，方便后续切换上下文后快速上手。
+> 记录沙盒环境（Windows + PowerShell）中常见问题及解决方案。
+> 环境出问题先查这个。
 
 ---
 
@@ -165,19 +166,7 @@ taskkill /PID 12345 /F
 
 ---
 
-## 7. pnpm 命令
-
-| 命令 | 说明 |
-|------|------|
-| `pnpm install` | 安装依赖 |
-| `pnpm dev` | 启动开发服务器 |
-| `pnpm upload` | 上传文档（语义模式） |
-| `pnpm upload:simple` | 上传文档（简单模式） |
-| `pnpm build` | 构建项目 |
-
----
-
-## 8. Windows 路径问题
+## 7. Windows 路径问题
 
 ### 路径分隔符
 
@@ -209,59 +198,39 @@ New-Item -ItemType Directory -Path "D:\test"
 
 ---
 
-## 9. 文件操作
-
-### 读取文件
+## 8. 文件操作
 
 ```powershell
+# 读取文件
 Get-Content D:\path\to\file.txt
-```
 
-### 写入文件
-
-```powershell
+# 写入文件
 Set-Content -Path D:\path\to\file.txt -Value "content"
-```
 
-### 删除文件
-
-```powershell
+# 删除文件
 Remove-Item D:\path\to\file.txt
-```
 
-### 检查文件是否存在
-
-```powershell
+# 检查文件是否存在
 Test-Path D:\path\to\file.txt
 ```
 
 ---
 
-## 10. 环境变量
-
-### 查看环境变量
+## 9. 环境变量
 
 ```powershell
+# 查看
 $env:变量名
-```
 
-### 设置环境变量（仅当前会话）
-
-```powershell
+# 设置（仅当前会话）
 $env:NODE_ENV = "development"
 ```
 
-### 常见环境变量
-
-| 变量 | 说明 |
-|------|------|
-| `$env:PATH` | 系统路径 |
-| `$env:USERPROFILE` | 用户目录（C:\Users\用户名） |
-| `$env:TEMP` | 临时目录 |
+常见变量：`$env:PATH`、`$env:USERPROFILE`、`$env:TEMP`
 
 ---
 
-## 11. 查看命令帮助
+## 10. 查看命令帮助
 
 ```powershell
 Get-Help 命令名
@@ -270,7 +239,7 @@ Get-Help 命令名 -Examples
 
 ---
 
-## 总结
+## 快速查找表
 
 | 场景 | 解决方案 |
 |------|---------|
@@ -278,8 +247,3 @@ Get-Help 命令名 -Examples
 | HTTP 请求 | `Invoke-RestMethod` 替代 `curl` |
 | Git 多行提交 | 单行消息 或 PowerShell here-string |
 | 端口占用 | `netstat -ano \| findstr ":端口"` + `taskkill /PID xxx /F` |
-
----
-
-**文档版本**：v1.0  
-**创建日期**：2026-06-22

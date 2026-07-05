@@ -10,25 +10,38 @@
     "upload": "ts-node src/upload-docs.ts",
     "upload:simple": "ts-node src/upload-docs.ts --simple",
     "upload:semantic": "ts-node src/upload-docs.ts",
-    "lint": "eslint src/**/*.ts"
+    "lint": "eslint src/**/*.ts",
+    "test": "jest",
+    "test:unit": "jest",
+    "test:integration": "jest --config jest.integration.config.js"
   },
-  "keywords": ["rag", "minimax", "chromadb", "knowledge-base"],
+  "keywords": [
+    "rag",
+    "minimax",
+    "chromadb",
+    "knowledge-base"
+  ],
   "author": "",
   "license": "MIT",
   "dependencies": {
+    "@types/node": "^20.11.5",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.19.2",
-    "morgan": "^1.10.0",
-    "@types/node": "^20.11.5"
+    "morgan": "^1.10.0"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
+    "@types/jest": "^30.0.0",
     "@types/morgan": "^1.9.9",
+    "@types/supertest": "^7.2.0",
     "@typescript-eslint/eslint-plugin": "^6.19.0",
     "@typescript-eslint/parser": "^6.19.0",
     "eslint": "^8.56.0",
+    "jest": "^30.4.2",
+    "supertest": "^7.2.2",
+    "ts-jest": "^29.4.11",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.3.3"
