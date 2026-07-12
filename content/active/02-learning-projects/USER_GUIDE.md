@@ -29,7 +29,7 @@ https://github.com/xxx/xxx
 或者更具体一点：
 
 ```
-按照 project-notes/SOP.md 的规范，帮我产出这个项目的学习笔记：
+按照 `content/templates/learning-project/SOP.md` 的规范，帮我产出这个项目的学习笔记：
 https://github.com/xxx/xxx
 重点关注它在 AI Agent 工作流编排方面的设计。
 ```
@@ -134,14 +134,15 @@ Agent 会：
 ## 4. 产出物在哪里
 
 ```
-project-notes/
-├── SOP.md                  ← Agent 执行规范（不用管）
+content/active/02-learning-projects/
+├── README.md               ← 学习项目说明
 ├── USER_GUIDE.md           ← 本文档
-├── {项目名}.md              ← 学习笔记
-└── {项目名}-mini-demo/      ← 最简 Demo（如果做了）
-    ├── client/
-    ├── server/
-    └── README.md
+├── {项目名}/                ← 学习项目目录
+│   ├── AGENT.md
+│   ├── README.md
+│   ├── manifest.json
+│   ├── notes/
+│   └── demo/               ← 最简 Demo（如果做了）
 ```
 
 ---
@@ -152,7 +153,7 @@ project-notes/
 
 ### 模板 1：单项目深度了解
 ```
-按照 project-notes/SOP.md 的规范，帮我产出这个项目的学习笔记：
+按照 `content/templates/learning-project/SOP.md` 的规范，帮我产出这个项目的学习笔记：
 https://github.com/xxx/xxx
 
 重点关注：

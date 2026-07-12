@@ -1,7 +1,7 @@
 # 当前项目状态
 
 > 最后更新：2026-07-12
-> 状态：正常开发中
+> 状态：内容层架构验证 + 旧目录清理完成
 
 ---
 
@@ -12,7 +12,7 @@
 | 项目名 | frontend-rag-knowledge-base |
 | 类型 | 前端 RAG 知识库（个人学习+知识组织实验）|
 | 主分支 | main |
-| 最后 Commit | 24b2173（content 架构 + 知识库页面 + 重建索引）|
+| 最后 Commit | 83c53f8（文档体系整理 + plans/ 目录 + 两个 skill）|
 | 远程仓库 | https://github.com/ep-learner/frontend-rag-knowledge-base.git |
 
 ---
@@ -60,7 +60,7 @@
 - **API 规范化**：统一 `{ code, data, message }` + 错误码体系
 - **测试框架**：24 个单元测试（mock）+ 集成测试隔离
 - **Agent Memory 体系**：agent-memory/ 目录 + current-state + work-log
-- **内容层架构**（2026-07-12 新增）：
+- **内容层架构**（2026-07-12）：
   - content/ 目录三层架构（active + archive + templates）
   - 三类内容：knowledge-base / learning-projects / source-notes
   - Content Protocol 渲染协议 + 扩展决策指南
@@ -72,17 +72,34 @@
   - 前端交互与动画 → 01-knowledge-base
   - VibeVibe 学习项目 → 02-learning-projects/vibe-learning
   - Vercel&Netlify 部署指南 → 01-knowledge-base/工程化与部署
+  - n8n 学习笔记 → 02-learning-projects/n8n
+- **文档体系整理**（2026-07-12）：
+  - 根目录只留 3 个入口：README.md / AGENT.md / ARCHITECTURE.md
+  - RAG 技术笔记 + 使用指南 → docs/
+  - 项目计划 + 想法池 → plans/（active + archive + AGENT.md）
+  - ThinkingTODO + BACKLOG → plans/active/backlog.md
+- **两个 Agent Skill**（2026-07-12）：
+  - `project-init`：新对话初始化，引导读 AGENT.md + current-state
+  - `commit-with-check`：提交代码前强制执行检查清单
+  - 设计原则：AGENT.md 是唯一真理来源，skill 只做触发器
+- **旧目录清理完成**（2026-07-12）：
+  - `project-notes/SOP.md` → `content/templates/learning-project/SOP.md`
+  - `project-notes/USER_GUIDE.md` → `content/active/02-learning-projects/USER_GUIDE.md`
+  - 删除 `knowledge-docs/`（通识测试内容，36篇）
+  - 删除 `project-notes/`（已全部迁移到 content/）
+  - 内容层架构验证通过
 
 ### 🔄 进行中
-- 无（等用户验证 content 架构路线是否符合预期）
+- 无
 
 ### 📋 待开始（按优先级）
-1. **[高]** 数据库持久化改造：JSON → SQLite（学习 Prisma 或 Drizzle）
-2. **[高]** 部署公网前必须加：API Key 鉴权（否则接口被滥用）
-3. **[中]** 部署到公网：Vercel 前端 + 后端部署方案
-4. **[中]** 前端 API 层拆分：client.ts 按模块拆分
-5. **[低]** CI/CD：GitHub Actions 自动跑测试
-6. **[低]** 更多测试覆盖：batch-upload、stream 流式对话
+1. **[中]** 部署到公网：Vercel 前端 + 后端部署方案
+2. **[中]** 前端 API 层拆分：client.ts 按模块拆分
+3. **[中]** 数据库持久化：向量库从 JSON 文件迁到 SQLite
+4. **[低]** CI/CD：GitHub Actions 自动跑测试
+5. **[低]** 更多测试覆盖：batch-upload、stream 流式对话
+
+> 更多低优先级/长期想法见 [plans/active/backlog.md](../plans/active/backlog.md)
 
 ---
 
@@ -94,7 +111,6 @@
 | 集成测试耗 token | 中 | `pnpm test:integration` 会真实调用 Minimax API，别在 CI 里跑 |
 | 向量库是 JSON 文件 | 中 | 目前 chroma.ts 用 JSON 文件存，数据量大了会慢，后续换 SQLite |
 | 接口无鉴权 | 高 | **部署公网前必须加鉴权**，否则 API Key 会被刷爆 |
-| 旧目录未清理 | 低 | knowledge-docs/、project-notes/ 是旧目录，暂时保留，等 content 架构验证完再清理 |
 
 ---
 
@@ -102,9 +118,9 @@
 
 根据当前状态，推荐优先做：
 
-1. **验证 content 架构**：先在页面上看看效果，确认路线没问题
-2. **如果路线对**：逐步把旧内容迁到 content/ 下
-3. **如果要加新功能**：建议先做数据库持久化，这是很多功能的基础
+1. **部署到公网**：Vercel 前端 + 后端部署方案（部署前必须加鉴权）
+2. **数据库持久化**：向量库从 JSON 文件迁到 SQLite，这是很多功能的基础
+3. **前端 API 层拆分**：client.ts 按模块拆分，提高可维护性
 
 ---
 

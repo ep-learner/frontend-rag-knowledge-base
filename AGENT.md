@@ -156,7 +156,6 @@ frontend-rag-knowledge-base/
 |--|------|
 | ❌ **不要乱放内容** | 什么类型的内容放什么目录，别混放 |
 | ❌ **不要把全局 TODO 放子目录** | 全局待办去 `agent-memory/current-state.md` |
-| ❌ **不要在 project-notes/ 里新建东西** | 那是旧目录，新项目去 `content/active/02-learning-projects/` |
 | ✅ **加内容先看 content/AGENT.md** | 了解分类、升降级、命名规范 |
 | ✅ **新项目用模板** | 从 `content/templates/` 复制 |
 

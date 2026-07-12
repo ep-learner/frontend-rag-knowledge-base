@@ -164,7 +164,7 @@
 
 ```json
 {
-  "directory": "knowledge-docs"
+  "directory": "content/active"
 }
 ```
 

@@ -394,7 +394,7 @@ React Hooks 是 React 16.8 版本引入的一项功能，它允许开发者在�
 
 | 维护项 | 说明 |
 |--------|------|
-| 知识库文档 | 定期更新 `knowledge-docs/` 目录 |
+| 知识库文档 | 定期更新 `content/active/` 目录 |
 | API Key | 定期轮换，确保不泄露 |
 | 向量数据库 | 定期备份 `chroma-db/documents.json` |
 | 依赖版本 | 定期更新 npm 依赖 |
