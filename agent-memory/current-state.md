@@ -96,6 +96,11 @@
   - 前端改造「笔记整理工作台」：左侧待整理+已归档双区域，右侧编辑/预览切换
   - 新增 3 个内置模板：前端技术笔记、视频知识点沉淀、工具使用经验
   - 新增 `source-note-organizer` skill：待整理笔记 → AI 按模板整理 → 写入正式目录 → 清理原始文件
+- **Agent 协作架构模板抽离**（2026-07-13）：
+  - 从当前项目提炼通用「人+Agent 协作」架构模式
+  - 产出可复用的 AGENT.md + 2 个核心 skill（project-init + commit-with-check）
+  - 适配场景：FaaS 构建平台、组件库、知识库等「原子单元+组合单元」双层结构项目
+  - 位置：`content/templates/agent-collaboration/`
 
 ### 🔄 进行中
 - 无
