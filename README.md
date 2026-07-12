@@ -1,51 +1,35 @@
-# 前端 RAG 知识库 + AI 开发学习笔记
+# 前端 RAG 知识库
 
-一个**个人前端技术知识库 + AI 辅助开发学习笔记**的集合项目。
-
-核心包含两部分：
-- **RAG 知识库系统**：基于 Minimax 大模型 + 向量检索的前端技术问答系统
-- **AI 开发学习笔记**：记录 AI 辅助开发、Agent 工具、全栈教程等学习过程
+一个**个人知识管理 + RAG 实验平台**。既是一个可用的 RAG 问答系统，也是一个探索 agent memory 和知识组织方式的实验场。
 
 ---
 
-## 📚 知识库内容
+## 🗺️ 能力地图
 
-### 前端技术知识库（knowledge-docs/）
+### 内容层（你主要用的）
 
-已整理的技术笔记，可直接导入 RAG 系统：
+| 内容类型 | 放哪里 | 展示形式 | 加内容要不要改代码 |
+|---------|--------|---------|-----------------|
+| 📚 知识点笔记 | `content/active/01-knowledge-base/` | 分类 → 文档 → Markdown | ❌ 不用，丢 .md 进去就行 |
+| 🎯 学习项目（带 demo） | `content/active/02-learning-projects/` | 项目卡片 → 详情页（笔记 + demo iframe） | ❌ 不用，加目录 + manifest.json |
+| 📎 来源整理 | `content/active/03-source-notes/` | 来源分类 → 文档 → Markdown | ❌ 不用，丢 .md 进去就行 |
+| 📦 归档内容 | `content/archive/` | —（不展示，不索引） | — |
 
-| 分类 | 数量 | 包含内容 |
-|------|------|----------|
-| TypeScript | 8 篇 | 类型系统、泛型、类型体操、模块系统、装饰器、类型守卫、异步编程、编译器配置 |
-| React 核心原理 | 8 篇 | 组件原理、状态管理、虚拟 DOM、Hooks、Context、性能优化、SSR、错误边界 |
-| 前端工程化 | 6 篇 | Vite、Webpack、ESLint、自动化测试、CI/CD、监控与性能监控 |
-| 浏览器性能优化 | 6 篇 | 渲染原理、资源加载、JS 性能、网络优化、安全与性能、移动端优化 |
-| Node.js 后端 | 4 篇 | 核心模块、Express、数据库 ORM、API 设计与安全 |
-| 面试复盘 | 4 篇 | TypeScript、React、工程化、浏览器原理 常见坑与避坑指南 |
-| 前端交互与动画 | 1 篇 | 滚动定位与锚点原理深度解析 |
+### 功能层
 
-### AI 开发学习笔记（project-notes/）
-
-记录 AI 辅助开发过程中的工具探索、教程学习、方法论总结：
-
-| 目录 | 内容 |
+| 功能 | 说明 |
 |------|------|
-| [vibeLearning/](project-notes/vibeLearning/) | VibeVibe 教程学习笔记（基础篇 + Happy Coder 进阶篇） + baseDemo 原型 |
-| [n8n/](project-notes/n8n/) | n8n 工作流自动化工具学习笔记 |
-| [SOP.md](project-notes/SOP.md) | AI 辅助开发标准作业流程 |
-| [USER_GUIDE.md](project-notes/USER_GUIDE.md) | 用户指南 |
+| 🔍 RAG 智能问答 | 基于向量检索 + 大模型，问问题从知识库找答案 |
+| 🌐 知识库浏览 | 网页端浏览所有内容，支持三类内容切换 |
+| 📱 Demo 预览 | 学习项目的 demo 可以直接在页面里用 iframe 打开 |
+| 🔄 索引重建 | 前端一键重建 RAG 向量索引 |
 
----
+### 技术栈
 
-## 🛠️ 技术栈
-
-### RAG 系统
-
-- **后端**：Node.js 18+ + Express + TypeScript
 - **前端**：Vite + React + TypeScript + Tailwind CSS
-- **向量检索**：内存向量存储（纯 JS 实现，双模式：语义检索 + 快速检索）
+- **后端**：Node.js + Express + TypeScript
+- **向量存储**：本地 JSON 文件（纯 JS 实现，双模式：语义检索 + 快速检索）
 - **大模型**：Minimax（ChatCompletion + Embedding API）
-- **包管理器**：pnpm
 
 ---
 
@@ -53,148 +37,105 @@
 
 ```
 frontend-rag-knowledge-base/
-├── client/                    # 前端页面 (Vite + React + TypeScript)
-│   ├── src/
-│   │   ├── api/                # API 接口封装
-│   │   ├── components/         # React 组件
-│   │   ├── pages/              # 页面组件（首页 / 问答 / 文档管理）
-│   │   ├── App.tsx             # 应用入口
-│   │   └── main.tsx            # 主入口
-│   └── package.json
-├── server/                    # RAG 后端服务 (Express + TypeScript)
-│   ├── src/
-│   │   ├── app.ts              # 主入口
-│   │   ├── services/
-│   │   │   ├── chroma.ts       # 向量数据库服务（双写向量）
-│   │   │   └── minimax.ts      # Minimax API 集成
-│   │   ├── routes/
-│   │   │   ├── chat.ts         # 问答接口（普通 + 流式）
-│   │   │   └── documents.ts    # 文档管理接口
-│   │   ├── utils/
-│   │   │   └── textSplitter.ts # 文档分片工具
-│   │   └── upload-docs.ts      # 批量上传脚本
-│   └── .env.example
-├── knowledge-docs/            # 前端知识库原始 MD 文档
-│   ├── 01-TypeScript/
-│   ├── 02-React核心原理/
-│   ├── 03-前端工程化/
-│   ├── 04-浏览器性能优化/
-│   ├── 05-NodeJS后端/
-│   ├── 06-面试复盘/
-│   ├── 07-前端交互与动画/
-│   └── template.md
-├── project-notes/             # AI 开发学习笔记
-│   ├── vibeLearning/          # VibeVibe 教程 + Happy Coder 笔记
-│   ├── n8n/                   # n8n 工作流工具笔记
-│   ├── SOP.md                 # AI 辅助开发 SOP
-│   └── USER_GUIDE.md          # 用户指南
-├── ARCHITECTURE.md            # 双写向量技术架构文档
-├── PROJECT_PLAN.md            # 项目计划与进度
-├── RAG_LEARNING_NOTES.md      # RAG 学习笔记
-└── README.md
+├── 🎨 client/                 # 前端页面
+├── ⚙️ server/                 # 后端服务
+│   └── src/routes/content.ts  # 内容 API（读文件系统）
+│
+├── 📚 content/                # ⭐ 所有内容在这里
+│   ├── AGENT.md               # 内容层 Agent 指南
+│   ├── CONTENT_PROTOCOL.md    # 内容渲染协议（扩展必看）
+│   ├── templates/             # 内容模板
+│   ├── active/                # 活跃内容（被索引 + 展示）
+│   │   ├── 01-knowledge-base/ # 纯知识点
+│   │   ├── 02-learning-projects/ # 学习项目（带 demo）
+│   │   └── 03-source-notes/   # 来源整理
+│   └── archive/               # 归档内容（不索引不展示）
+│
+├── 🤖 agent-memory/           # Agent 工作记忆（频繁更新）
+│   ├── README.md              # Agent Memory 入口
+│   ├── current-state.md       # 当前状态/待办
+│   └── work-log/              # 工作日志
+│
+├── 🏗️ ARCHITECTURE.md         # 技术架构文档
+├── 🤖 AGENT.md                # Agent 入口指南
+└── 📖 README.md               # 你正在看的
 ```
 
-## 快速开始
+---
 
-### 1. 环境变量配置
+## 🚀 快速开始
 
-在 server 目录下创建 .env 文件：
+### 1. 配置环境变量
 
 ```bash
 cd server
-copy .env.example .env
-```
-
-编辑 `.env` 文件，填入你的 Minimax API Key：
-
-```bash
-MINIMAX_API_KEY=your-api-key-here
-MINIMAX_GROUP_ID=your-group-id
+cp .env.example .env
+# 编辑 .env，填入 MINIMAX_API_KEY 和 MINIMAX_GROUP_ID
 ```
 
 ### 2. 安装依赖
 
 ```bash
-cd server
-pnpm install
+cd server && pnpm install
+cd ../client && pnpm install
 ```
 
-### 3. 上传知识库文档
+### 3. 构建索引
 
 ```bash
 cd server
-pnpm upload
+pnpm upload:simple   # 快速模式（不消耗 Token）
+# 或
+pnpm upload          # 语义模式（消耗 Token，质量高）
 ```
 
-这会读取 `knowledge-docs/` 目录下的所有 Markdown 文件，分片后存入向量数据库。
-
-### 4. 启动后端服务
+### 4. 启动
 
 ```bash
-cd server
-pnpm dev
+# 一键启动（Windows PowerShell）
+.\dev.ps1
+
+# 或分别启动
+cd server && pnpm dev    # 后端：http://localhost:3000
+cd client && pnpm dev    # 前端：http://localhost:5173
 ```
 
-服务启动后访问：http://localhost:3000
+---
 
-### 5. 启动前端服务
+## 🧩 扩展边界
 
-```bash
-cd client
-pnpm install
-pnpm dev
-```
+### ✅ 零代码扩展（直接用）
+- 加知识点笔记、加分类
+- 加学习项目、加笔记、加 demo
+- 加来源整理笔记
+- 内容升降级（active ↔ archive）
 
-前端启动后访问：http://localhost:5173
+### ⚠️ 小改就能扩展（改前端组件 + manifest 加字段）
+- 给笔记/项目加新的元数据字段（难度、阅读时长、评分等）
+- 列表页加筛选、排序功能
+- 调整展示样式（卡片换列表、换布局）
 
-## API 接口
+### ❌ 需要大改（加新内容类型 / 新交互）
+- 新增第四类内容（比如代码片段库、视频教程、思维导图）
+- 支持非 Markdown 内容（PDF、图片集、Notion 页面）
+- 可交互的 demo（不是纯静态 iframe，而是和主站有通信）
+- 多用户、权限系统
+- 评论、点赞等社交功能
 
-### 后端接口
+---
 
-| 方法 | 路径 | 功能 |
-|------|------|------|
-| GET | /api/health | 健康检查 |
-| POST | /api/documents/upload | 上传单篇文档 |
-| POST | /api/documents/batch-upload | 批量上传文档 |
-| GET | /api/documents/stats | 获取文档统计 |
-| GET | /api/documents/list | 获取文档列表 |
-| GET | /api/documents/content/:source | 获取文档内容 |
-| DELETE | /api/documents/:id | 删除文档 |
-| POST | /api/chat | RAG 问答 |
-| POST | /api/chat/stream | RAG 问答（流式） |
-| GET | /api/chat/logs | 查看问答日志 |
-| GET | /api/chat/logs/stats | 查看日志统计 |
-| GET | /api/chat/logs/:id | 查看单条日志详情 |
+## 📖 想深入了解？
 
-### 前端页面
-
-| 页面 | 路径 | 功能 |
-|------|------|------|
-| 首页 | / | 知识库概览、统计数据、功能入口 |
-| 问答页 | /chat | RAG 智能问答、多轮对话、模式切换 |
-| 文档管理 | /documents | 文档列表、上传、查看、统计信息 |
-
-## Minimax 配置步骤
-
-1. 注册 [Minimax](https://www.minimax.chat/) 账号
-2. 创建应用，获取 API_KEY
-3. 获取 GROUP_ID（在账户中心查看）
-4. 将 API_KEY 和 GROUP_ID 填入 `server/.env` 文件
-5. 充值账户余额（首次充值有优惠）
-
-## 环境变量说明
-
-| 变量名 | 说明 | 默认值 |
-|--------|------|--------|
-| MINIMAX_API_KEY | Minimax API 密钥 | - |
-| MINIMAX_GROUP_ID | Minimax 组织 ID | - |
-| MINIMAX_BASE_URL | API 基础地址 | https://api.minimax.chat/v1/chat/completions |
-| CHROMA_DB_PATH | 数据库路径 | ./chroma-db |
-| PORT | 服务端口 | 3000 |
-
-## 文档书写规范
-
-所有知识库文档请遵循 `knowledge-docs/template.md`
+| 你想知道什么 | 去看哪 |
+|-------------|--------|
+| 技术架构怎么设计的 | [ARCHITECTURE.md](ARCHITECTURE.md) |
+| 内容渲染协议细节 | [content/CONTENT_PROTOCOL.md](content/CONTENT_PROTOCOL.md) |
+| 内容怎么加、怎么升降级 | [content/AGENT.md](content/AGENT.md) |
+| 使用指南 | [docs/USAGE_GUIDE.md](docs/USAGE_GUIDE.md) |
+| RAG 技术学习笔记 | [docs/rag/](docs/rag/) |
+| 想法和待办计划 | [plans/README.md](plans/README.md) |
+| 有哪些 API 接口 | `server/API_DOCS.md` |
+| Agent 怎么工作的 | [AGENT.md](AGENT.md) |
 
 ---
 
@@ -202,7 +143,8 @@ pnpm dev
 
 | 日期 | 更新内容 |
 |------|----------|
-| 2026-07-05 | 新增 VibeVibe 基础篇学习笔记 + Happy Coder 进阶篇笔记 + baseDemo 原型；新增前端交互与动画知识库；n8n 笔记归档到子目录 |
-| 2026-06-23 | 完成前端页面开发（首页 / 问答 / 文档管理）；实现双模式 Embedding；日志系统；文档内容查看 |
-| 2026-06-22 | 完成后端服务开发；修复 API 地址和向量存储方案；RAG 功能集成 |
-| 2026-06-19 | 首次提交；36 篇知识库文档创建；项目初始化 |
+| 2026-07-12 | 搭建 content 内容层架构；新增知识库页面（三 Tab + 项目详情 + demo 预览）；前端一键重建索引；dev.ps1 修复 |
+| 2026-07-05 | 新增 VibeVibe 基础篇学习笔记 + Happy Coder 进阶篇笔记 + baseDemo 原型 |
+| 2026-06-23 | 完成前端页面开发；实现双模式 Embedding；日志系统 |
+| 2026-06-22 | 完成后端服务开发；RAG 功能集成 |
+| 2026-06-19 | 首次提交；36 篇知识库文档；项目初始化 |

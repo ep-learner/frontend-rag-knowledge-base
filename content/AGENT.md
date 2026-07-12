@@ -78,46 +78,24 @@ source-notes → knowledge-base / learning-projects → archive
 
 ---
 
-## 内容协议（重要！）
+## 内容协议（展示层契约）
 
-所有内容都遵循 **Content Manifest 协议**，前端会按照这个协议渲染页面。
+**所有内容都遵循 Content Protocol，前端按协议渲染。**
 
-### 知识点笔记（knowledge-note）
-- 纯 Markdown，无特殊结构要求
-- 建议有清晰的标题层级（#、##、###）
+完整协议文档：[CONTENT_PROTOCOL.md](CONTENT_PROTOCOL.md)
 
-### 学习项目（learning-project）
-每个项目目录必须包含：
-```
-project-name/
-├── AGENT.md          # 本项目的 Agent 工作指南
-├── README.md         # 项目说明（给人看）
-├── manifest.json     # 内容清单（前端渲染用）
-├── notes/            # 学习笔记（md 文件）
-└── demo/             # （可选）可运行的 demo 代码
-```
+**快速参考：**
 
-**manifest.json 格式：**
-```json
-{
-  "id": "project-id",
-  "title": "项目标题",
-  "description": "一句话描述",
-  "tags": ["tag1", "tag2"],
-  "level": "beginner",
-  "notes": [
-    { "id": "note1", "title": "笔记1", "file": "notes/01-xxx.md" }
-  ],
-  "demos": [
-    { "id": "demo1", "title": "Demo 1", "entry": "demo/index.html" }
-  ],
-  "coverImage": "assets/cover.png"
-}
-```
+| 内容类型 | 驱动方式 | 加内容要不要改代码 |
+|---------|---------|-----------------|
+| knowledge-base | 目录驱动 | ❌ 不用，丢 .md 进分类目录 |
+| learning-projects | manifest.json 驱动 | ❌ 不用，加文件 + 更新 manifest |
+| source-notes | 目录驱动 | ❌ 不用，丢 .md 进分类目录 |
 
-### 来源整理（source-note）
-- Markdown 文件，开头要有元信息
-- 建议标注：来源、日期、原文链接、核心要点
+**什么时候需要扩展协议？**
+- 加新的元数据字段 → 小改
+- 加全新的内容类型（第四类）→ 大改
+- 详细决策树见 [CONTENT_PROTOCOL.md](CONTENT_PROTOCOL.md#扩展决策指南)
 
 ---
 

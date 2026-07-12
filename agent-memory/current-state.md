@@ -1,6 +1,6 @@
 # 当前项目状态
 
-> 最后更新：2026-07-06
+> 最后更新：2026-07-12
 > 状态：正常开发中
 
 ---
@@ -10,9 +10,9 @@
 | 项 | 值 |
 |----|----|
 | 项目名 | frontend-rag-knowledge-base |
-| 类型 | 前端 RAG 知识库（个人学习项目）|
+| 类型 | 前端 RAG 知识库（个人学习+知识组织实验）|
 | 主分支 | main |
-| 最后 Commit | 本地未推送（GitHub 网络超时）|
+| 最后 Commit | 24b2173（content 架构 + 知识库页面 + 重建索引）|
 | 远程仓库 | https://github.com/ep-learner/frontend-rag-knowledge-base.git |
 
 ---
@@ -23,39 +23,70 @@
 |----|------|
 | 前端 | React 18 + TypeScript + Vite + Tailwind CSS |
 | 后端 | Node.js + Express + TypeScript |
-| 向量库 | 本地 JSON 文件 + Chroma（轻量实现）|
-| LLM | Minimax API |
+| 向量库 | 本地 JSON 文件（纯 JS 实现，双模式：语义 + 快速）|
+| LLM | Minimax API（ChatCompletion + Embedding）|
 | 测试 | Jest + supertest + ts-jest |
 
 ---
 
-## 3. 当前进度
+## 3. 架构概览
+
+### 核心分层
+```
+┌─────────────────────────────────────┐
+│  内容层 content/                    │  ← 大多数日常工作在这里
+│  ├─ active/01-knowledge-base       │     知识点笔记（目录驱动）
+│  ├─ active/02-learning-projects    │     学习项目（manifest 驱动，带 demo）
+│  └─ active/03-source-notes         │     来源整理（目录驱动）
+├─────────────────────────────────────┤
+│  渲染层（前端 + 后端 API）          │  ← 按 Content Protocol 渲染
+├─────────────────────────────────────┤
+│  RAG 层（检索 + 问答）              │  ← 索引 content/active 下的 .md
+└─────────────────────────────────────┘
+```
+
+### 关键文档
+- **README.md** — 给人看的：能力地图、扩展边界、快速开始
+- **ARCHITECTURE.md** — 技术架构详解
+- **content/CONTENT_PROTOCOL.md** — 内容渲染协议 + 扩展决策指南
+- **AGENT.md** — 给 agent 看的：入口导航、必更清单、提交前检查
+
+---
+
+## 4. 当前进度
 
 ### ✅ 已完成
-- 前端三页：首页、文档列表、聊天页
-- 后端核心：文档上传/列表/删除、对话（普通+流式）、日志
-- API 格式统一：`{ code, data, message }` + 错误码体系
-- 测试框架搭建：24 个单元测试（mock，不耗 token）+ 集成测试
-- 测试数据库隔离：chroma-db-test/ 用完自动删
-- API 文档：server/API_DOCS.md
-- VibeVibe 学习笔记：基础篇 + 进阶篇 + Happy Coder
-- README 重写：内容索引完善
-- 一键启动脚本：dev.ps1
+- **RAG 基础**：前端三页（首页/文档/聊天）、后端核心、双模式检索
+- **API 规范化**：统一 `{ code, data, message }` + 错误码体系
+- **测试框架**：24 个单元测试（mock）+ 集成测试隔离
+- **Agent Memory 体系**：agent-memory/ 目录 + current-state + work-log
+- **内容层架构**（2026-07-12 新增）：
+  - content/ 目录三层架构（active + archive + templates）
+  - 三类内容：knowledge-base / learning-projects / source-notes
+  - Content Protocol 渲染协议 + 扩展决策指南
+  - 后端 content API（10+ 接口，读文件系统）
+  - 前端知识库页面（三 Tab + 项目详情 + demo iframe）
+  - 前端一键重建索引
+  - dev.ps1 修复（英文避免编码问题）
+- **内容迁移**（第一批）：
+  - 前端交互与动画 → 01-knowledge-base
+  - VibeVibe 学习项目 → 02-learning-projects/vibe-learning
+  - Vercel&Netlify 部署指南 → 01-knowledge-base/工程化与部署
 
 ### 🔄 进行中
-- 无
+- 无（等用户验证 content 架构路线是否符合预期）
 
 ### 📋 待开始（按优先级）
 1. **[高]** 数据库持久化改造：JSON → SQLite（学习 Prisma 或 Drizzle）
 2. **[高]** 部署公网前必须加：API Key 鉴权（否则接口被滥用）
-3. **[中]** 前端 API 层拆分：client.ts 按模块拆分
-4. **[中]** 部署到公网：Vercel 前端 + 后端部署方案
+3. **[中]** 部署到公网：Vercel 前端 + 后端部署方案
+4. **[中]** 前端 API 层拆分：client.ts 按模块拆分
 5. **[低]** CI/CD：GitHub Actions 自动跑测试
 6. **[低]** 更多测试覆盖：batch-upload、stream 流式对话
 
 ---
 
-## 4. 已知问题 / 注意事项
+## 5. 已知问题 / 注意事项
 
 | 问题 | 严重度 | 说明 |
 |------|--------|------|
@@ -63,26 +94,32 @@
 | 集成测试耗 token | 中 | `pnpm test:integration` 会真实调用 Minimax API，别在 CI 里跑 |
 | 向量库是 JSON 文件 | 中 | 目前 chroma.ts 用 JSON 文件存，数据量大了会慢，后续换 SQLite |
 | 接口无鉴权 | 高 | **部署公网前必须加鉴权**，否则 API Key 会被刷爆 |
+| 旧目录未清理 | 低 | knowledge-docs/、project-notes/ 是旧目录，暂时保留，等 content 架构验证完再清理 |
 
 ---
 
-## 5. 下一步建议
+## 6. 下一步建议
 
 根据当前状态，推荐优先做：
 
-1. **先试试把服务跑起来**：`.\dev.ps1`，确认前后端都正常
-2. **如果要改后端**：改之前先跑 `pnpm test`，确保有基线
+1. **验证 content 架构**：先在页面上看看效果，确认路线没问题
+2. **如果路线对**：逐步把旧内容迁到 content/ 下
 3. **如果要加新功能**：建议先做数据库持久化，这是很多功能的基础
 
 ---
 
-## 6. 关键文件索引
+## 7. 关键文件索引
 
 | 内容 | 去哪找 |
 |------|--------|
+| 项目 README（人看的） | [README.md](../README.md) |
+| 技术架构 | [ARCHITECTURE.md](../ARCHITECTURE.md) |
+| 使用指南 | [docs/USAGE_GUIDE.md](../docs/USAGE_GUIDE.md) |
+| RAG 技术笔记 | [docs/rag/](../docs/rag/) |
+| 内容渲染协议 | [content/CONTENT_PROTOCOL.md](../content/CONTENT_PROTOCOL.md) |
+| 内容层 Agent 指南 | [content/AGENT.md](../content/AGENT.md) |
+| 想法与待办计划 | [plans/README.md](../plans/README.md) |
 | 接口文档 | [server/API_DOCS.md](../server/API_DOCS.md) |
-| 架构说明 | [ARCHITECTURE.md](../ARCHITECTURE.md) |
-| 项目计划 | [PROJECT_PLAN.md](../PROJECT_PLAN.md) |
-| 使用指南 | [USAGE_GUIDE.md](../USAGE_GUIDE.md) |
+| Agent 入口指南 | [AGENT.md](../AGENT.md) |
 | 沙盒踩坑 | [playbook/sandbox-tips.md](playbook/sandbox-tips.md) |
 | 常用命令 | [playbook/common-commands.md](playbook/common-commands.md) |

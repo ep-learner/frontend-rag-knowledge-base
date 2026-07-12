@@ -1,244 +1,210 @@
-# Content Manifest Protocol - 内容渲染协议
+# 内容渲染协议
 
-> 本文档定义 content/ 目录下内容的渲染协议。前端框架层按照这个协议渲染页面，不关心具体内容。
+> 本文档定义 content 目录下内容的**展示层契约**。前端和 RAG 索引都遵循这个协议来读取和渲染内容。
+>
+> **重要：协议只约束「怎么展示」，不约束「写什么内容」。** 你在 .md 里写什么都可以，协议只是规定了前端会怎么把它呈现出来。
 
 ---
 
-## 一、整体架构
+## 🎯 协议的定位
 
 ```
-前端框架层（Framework）
-    ↓ 读取
-content/ 目录（Content）
-    ↓ 按照协议组织
-三大类内容（knowledge-base / learning-projects / source-notes）
+┌─────────────────────────────────────────┐
+│  你写的内容（.md / demo 文件）            │  ← 完全自由，你想写什么写什么
+├─────────────────────────────────────────┤
+│  本协议（目录结构 + manifest + frontmatter）│  ← 展示层契约，告诉前端怎么渲染
+├─────────────────────────────────────────┤
+│  前端页面 + 后端 API                     │  ← 按协议实现的渲染层
+└─────────────────────────────────────────┘
 ```
 
-**核心原则**：
-- 框架层只认协议，不认具体内容
-- 新增内容只要遵循协议，自动获得渲染能力
-- 不同类型的内容有不同的协议细节
+**核心原则：内容和展示分离。** 你专注内容，协议和前端负责怎么呈现。
 
 ---
 
-## 二、三大内容类型
+## 📂 三类内容的目录结构
 
-| 类型 | 目录 | 协议 | 渲染方式 |
-|------|------|------|---------|
-| **知识点笔记** | `active/01-knowledge-base/` | 目录 + md 文件 | 分类列表 → 文档列表 → Markdown 渲染 |
-| **学习项目** | `active/02-learning-projects/` | 项目目录 + manifest.json | 项目卡片列表 → 项目详情页（笔记列表 + Demo 预览） |
-| **来源整理** | `active/03-source-notes/` | 目录 + md 文件 | 来源分类 → 文档列表 → Markdown 渲染 |
+### 1. 知识点笔记（knowledge-base）
 
----
+**目录驱动**：有什么分类、有什么文档，完全由目录结构决定。
 
-## 三、知识点笔记协议（knowledge-base）
-
-### 目录结构
 ```
 01-knowledge-base/
-├── 01-TypeScript/
-│   ├── 01-类型系统深度解析.md
-│   ├── 02-泛型编程实战.md
-│   └── ...
-├── 02-React核心原理/
-│   └── ...
-└── README.md
+├── 07-前端交互与动画/          ← 一级分类（目录名 = 分类名）
+│   ├── 01-xxx.md              ← 文档
+│   └── 02-xxx.md
+└── 08-工程化与部署/            ← 加新分类 = 新建目录
+    └── Vercel&Netlify部署指南.md
 ```
 
-### 元数据提取
-- **分类名**：目录名（去掉数字前缀，如 `TypeScript`）
-- **文档标题**：md 文件的第一个 `# 标题`
-- **文档路径**：相对于 `01-knowledge-base/` 的路径
+**前端渲染**：
+- 左侧：分类列表（按目录名排序）
+- 中间：当前分类的文档列表
+- 右侧：Markdown 内容
 
-### API 接口
-```
-GET /api/content/knowledge-base/categories
-→ 返回分类列表
-
-GET /api/content/knowledge-base/docs?category=TypeScript
-→ 返回某分类下的文档列表
-
-GET /api/content/knowledge-base/doc/:path
-→ 返回文档内容（Markdown）
-```
+**扩展方式**：
+- 加分类 → 新建目录（零代码）
+- 加文档 → 丢 .md 文件进去（零代码）
 
 ---
 
-## 四、学习项目协议（learning-projects）
+### 2. 学习项目（learning-projects）
 
-### 目录结构
+**Manifest 驱动**：有什么内容、怎么组织，由 `manifest.json` 定义。
+
 ```
 02-learning-projects/
-├── vibe-learning/
-│   ├── AGENT.md
-│   ├── README.md
-│   ├── manifest.json      # ⭐ 必须有！
-│   ├── notes/
-│   │   ├── 01-基础篇.md
-│   │   └── 02-进阶篇.md
-│   └── demo/
-│       ├── index.html
-│       └── ...
-└── README.md
+└── vibe-learning/              ← 项目目录
+    ├── manifest.json           ← ⭐ 核心契约（必须有）
+    ├── README.md               ← 项目介绍（详情页默认展示）
+    ├── AGENT.md                ← 项目专属 Agent 指南（可选）
+    ├── notes/                  ← 笔记文件
+    │   ├── base-level/
+    │   │   └── xxx.md
+    │   └── next-level/
+    │       └── xxx.md
+    └── demos/                  ← Demo 静态文件
+        └── base-demo/
+            └── index.html
 ```
 
-### manifest.json 协议（核心！）
+**manifest.json 字段说明**：
 
 ```json
 {
   "id": "vibe-learning",
-  "title": "VibeVibe 教程学习",
-  "description": "VibeVibe 基础篇 + 进阶篇全流程学习",
-  "tags": ["前端", "AI", "教程"],
-  "level": "beginner",
-  "coverImage": "assets/cover.png",
-  "status": "in-progress",
+  "title": "VibeVibe 学习之旅",
+  "description": "从基础到进阶的 VibeVibe 全栈学习记录",
+  "tags": ["AI", "RAG", "前端"],
+  "level": "intermediate",
+  "status": "active",
+  "coverImage": "",
   "notes": [
     {
-      "id": "note-base",
-      "title": "基础篇学习笔记",
-      "file": "notes/01-基础篇.md",
-      "order": 1
+      "id": "note-1",
+      "title": "笔记标题",
+      "file": "notes/base-level/xxx.md",
+      "section": "基础篇"
     }
   ],
   "demos": [
     {
-      "id": "demo-base",
-      "title": "基础篇 Demo",
-      "entry": "demo/index.html",
-      "description": "基础篇的可运行示例",
-      "order": 1
+      "id": "demo-1",
+      "title": "Demo 标题",
+      "entry": "demos/base-demo/index.html"
     }
   ],
   "sections": [
     {
-      "id": "sec-base",
+      "id": "base",
       "title": "基础篇",
-      "noteIds": ["note-base"],
-      "demoIds": ["demo-base"]
+      "description": "基础概念和入门"
     }
   ]
 }
 ```
 
-### 字段说明
+**前端渲染**：
+- 列表页：项目卡片网格
+- 详情页：README + 笔记列表（按 section 分组）+ Demo 列表（点了用 iframe 打开）
 
-| 字段 | 类型 | 必填 | 说明 |
-|------|------|------|------|
-| `id` | string | ✅ | 项目唯一 ID，英文小写，用 kebab-case |
-| `title` | string | ✅ | 项目标题 |
-| `description` | string | ✅ | 一句话描述 |
-| `tags` | string[] | - | 标签数组 |
-| `level` | string | - | 难度：beginner / intermediate / advanced |
-| `coverImage` | string | - | 封面图路径（相对于项目目录） |
-| `status` | string | - | 状态：not-started / in-progress / completed / archived |
-| `notes` | array | ✅ | 笔记列表 |
-| `notes[].id` | string | ✅ | 笔记唯一 ID |
-| `notes[].title` | string | ✅ | 笔记标题 |
-| `notes[].file` | string | ✅ | 笔记文件路径（相对于项目目录） |
-| `notes[].order` | number | - | 排序，数字小的在前 |
-| `demos` | array | - | Demo 列表 |
-| `demos[].id` | string | ✅ | Demo 唯一 ID |
-| `demos[].title` | string | ✅ | Demo 标题 |
-| `demos[].entry` | string | ✅ | Demo 入口文件路径（相对于项目目录） |
-| `demos[].description` | string | - | Demo 描述 |
-| `demos[].order` | number | - | 排序 |
-| `sections` | array | - | 章节分组（可选，用于复杂项目） |
-
-### API 接口
-```
-GET /api/content/learning-projects/list
-→ 返回项目列表（从各 manifest.json 汇总）
-
-GET /api/content/learning-projects/:id
-→ 返回单个项目的 manifest 详情
-
-GET /api/content/learning-projects/:id/note/:noteId
-→ 返回某篇笔记的内容
-
-GET /api/content/learning-projects/:id/demo/:demoId
-→ 返回 Demo 的入口文件（静态文件服务）
-```
-
-### 前端渲染
-
-**项目列表页：**
-- 卡片式布局，每个项目一张卡片
-- 显示：封面图、标题、描述、标签、难度、状态
-- 点击进入项目详情页
-
-**项目详情页：**
-- 左侧：章节/笔记导航
-- 右侧主区域：
-  - 默认显示 README.md 或项目介绍
-  - 点击笔记 → 渲染 Markdown
-  - 点击 Demo → iframe 加载 demo 入口 + 旁边显示说明
+**扩展方式**：
+- 加项目 → 新建项目目录 + manifest.json（零代码）
+- 加笔记 → 加 .md 文件 + manifest.notes 加一条（零代码）
+- 加 demo → 加静态文件 + manifest.demos 加一条（零代码）
+- 加章节 → manifest.sections 加一条（零代码）
 
 ---
 
-## 五、来源整理协议（source-notes）
+### 3. 来源整理（source-notes）
 
-### 目录结构
+和 knowledge-base 一样，**目录驱动**。只是内容定位不同（是对外部资料的整理，不是原创知识点）。
+
 ```
 03-source-notes/
-├── xiaohongshu/
-│   ├── 2026-07-01-React性能优化技巧.md
-│   └── ...
-├── douyin/
-│   └── ...
-└── README.md
-```
-
-### 元数据提取
-- **来源分类**：目录名（如 `xiaohongshu`、`douyin`）
-- **文档标题**：md 文件的第一个 `# 标题`
-- **价值评估**：从文件头部的元信息提取（可选）
-
-### API 接口
-```
-GET /api/content/source-notes/categories
-→ 返回来源分类列表
-
-GET /api/content/source-notes/docs?category=xiaohongshu
-→ 返回某来源下的文档列表
-
-GET /api/content/source-notes/doc/:path
-→ 返回文档内容
+├── 极客时间/
+│   └── xxx.md
+└── 官方文档/
+    └── xxx.md
 ```
 
 ---
 
-## 六、统一 API 响应格式
+## 🧩 扩展决策指南
 
-所有接口遵循统一格式：
+> 我有一个新想法，要不要改协议？
 
-```json
-{
-  "code": 0,
-  "data": { ... },
-  "message": "ok"
-}
+按这个决策树走：
+
 ```
-
-错误时：
-```json
-{
-  "code": 404,
-  "data": null,
-  "message": "Not found"
-}
+你想加的东西是什么？
+│
+├─ 只是加内容（新笔记、新项目、新分类）
+│   → 不用改协议，直接加文件就行 ✅
+│
+├─ 想给现有内容加个新属性（比如难度、阅读时长、评分）
+│   → manifest 或 frontmatter 加字段
+│   → 如果需要前端展示出来，改前端组件就行
+│   → 协议文档里记一下新字段 ⚠️
+│
+├─ 想换一种展示样式（比如卡片改列表、加个筛选）
+│   → 不用改协议，改前端组件就行 ⚠️
+│
+├─ 想加一种全新的内容类型（比如代码片段库、思维导图、视频教程）
+│   → 需要扩展协议：
+│   │   1. 定义新的目录结构
+│   │   2. 定义新的 manifest 格式
+│   │   3. 后端加新的 API
+│   │   4. 前端加新的 Tab + 新的渲染组件
+│   → 属于大改动，先想清楚必要性 ❌
+│
+└─ 想加交互功能（评论、点赞、多用户）
+    → 超出内容层协议范围了，属于应用层功能
+    → 需要大改架构 ❌
 ```
 
 ---
 
-## 七、扩展原则
+## 📏 当前能力边界
 
-1. **向后兼容**：新增字段不影响旧功能
-2. **渐进式增强**：简单内容可以只有基础字段，复杂内容可以加更多字段
-3. **约定优于配置**：能从目录/文件名推断的，就不用额外配置
-4. **框架层不关心内容**：框架只负责渲染，不理解内容
+### ✅ 零代码，直接用
+- [x] 知识点：加分类、加笔记
+- [x] 学习项目：加项目、加笔记、加 demo、加章节
+- [x] 来源整理：加分类、加笔记
+- [x] 内容升降级（active ↔ archive）
+- [x] Markdown 所有标准语法（标题、列表、代码块、表格、图片、链接...）
+
+### ⚠️ 小改就能有
+- [ ] 笔记元数据：难度、阅读时长、更新日期、标签
+- [ ] 列表筛选：按标签、按难度、按时间排序
+- [ ] 搜索：在知识库页面内搜索（不是 RAG 问答，是纯文本搜索）
+- [ ] 目录树：长笔记的侧边栏目录导航
+- [ ] 项目进度：manifest 里加进度字段，卡片上显示进度条
+
+### ❌ 需要大改/架构调整
+- [ ] 第四类内容类型（代码片段库、思维导图、视频教程...）
+- [ ] 非 Markdown 内容（PDF、图片集、Notion 页面...）
+- [ ] Demo 和主站交互（不是纯静态 iframe）
+- [ ] 多用户、权限系统
+- [ ] 评论、点赞、收藏等社交功能
+- [ ] 在线编辑内容（现在是只读，内容要改文件）
 
 ---
 
-**版本**：v1.0
-**最后更新**：2026-07-12
+## 🛠️ 扩展协议的步骤
+
+如果你确定要扩展协议，按这个流程来：
+
+1. **先在 CONTENT_PROTOCOL.md 里写清楚**新的结构、字段、渲染方式
+2. **改后端 API**（`server/src/routes/content.ts`）
+3. **改前端组件**（`client/src/components/knowledge/` 和 `client/src/api/client.ts`）
+4. **更新 README.md** 的能力地图和扩展边界
+5. **更新对应目录的 AGENT.md**（如果影响 agent 操作流程）
+
+---
+
+## 🤖 Agent 注意事项
+
+- 加内容时，优先用 `content/templates/` 里的模板
+- 不要为了"展示好看"去限制内容本身，内容优先
+- 如果内容形式现有协议装不下，先和用户确认要不要扩展协议，不要硬塞
