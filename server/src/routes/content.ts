@@ -131,7 +131,11 @@ function getCategories(dirPath: string): CategoryInfo[] {
   if (!fs.existsSync(dirPath)) return [];
 
   return fs.readdirSync(dirPath, { withFileTypes: true })
-    .filter(dirent => dirent.isDirectory() && !dirent.name.startsWith('.'))
+    .filter(dirent =>
+      dirent.isDirectory()
+      && !dirent.name.startsWith('.')
+      && !dirent.name.startsWith('_')
+    )
     .map(dirent => {
       const categoryPath = path.join(dirPath, dirent.name);
       const docCount = fs.existsSync(categoryPath)
@@ -433,6 +437,156 @@ router.get('/source-notes/doc/*', (req, res) => {
   } catch (error) {
     console.error('Error getting source notes doc:', error);
     res.status(500).json(apiError(ErrorCode.INTERNAL_ERROR, 'Failed to get document'));
+  }
+});
+
+// ==================== Pending Notes (待整理) ====================
+
+const PENDING_DIR = path.join(CONTENT_ROOT, '03-source-notes', '_pending');
+
+interface PendingNote {
+  filename: string
+  title: string
+  sourceUrl?: string
+  template?: string
+  createdAt: number
+  content: string
+}
+
+function ensurePendingDir() {
+  if (!fs.existsSync(PENDING_DIR)) {
+    fs.mkdirSync(PENDING_DIR, { recursive: true });
+  }
+}
+
+function safeFilename(name: string): string {
+  return name.replace(/[<>:"/\\|?*\x00-\x1f]/g, '_').slice(0, 100);
+}
+
+router.get('/pending-notes/list', (req, res) => {
+  try {
+    ensurePendingDir();
+    const files = fs.readdirSync(PENDING_DIR)
+      .filter(f => f.endsWith('.md'))
+      .map(filename => {
+        const filePath = path.join(PENDING_DIR, filename);
+        const stat = fs.statSync(filePath);
+        let content = '';
+        try {
+          content = fs.readFileSync(filePath, 'utf-8');
+        } catch { /* ignore */ }
+
+        let sourceUrl = '';
+        let template = '';
+        let noteTitle = '';
+        const titleMatch = content.match(/^title:\s*(.+)$/m);
+        const urlMatch = content.match(/^source:\s*(.+)$/m);
+        const tplMatch = content.match(/^template:\s*(.+)$/m);
+        if (titleMatch) noteTitle = titleMatch[1].trim();
+        if (urlMatch) sourceUrl = urlMatch[1].trim();
+        if (tplMatch) template = tplMatch[1].trim();
+
+        return {
+          filename,
+          title: noteTitle || extractTitle(content) || filename.replace('.md', ''),
+          sourceUrl,
+          template,
+          createdAt: stat.birthtimeMs || stat.ctimeMs,
+        };
+      })
+      .sort((a, b) => b.createdAt - a.createdAt);
+
+    res.json(success({ notes: files, totalCount: files.length }));
+  } catch (error) {
+    console.error('Error listing pending notes:', error);
+    res.status(500).json(apiError(ErrorCode.INTERNAL_ERROR, 'Failed to list pending notes'));
+  }
+});
+
+router.get('/pending-notes/:filename', (req, res) => {
+  try {
+    const { filename } = req.params;
+    const safeName = safeFilename(filename);
+    const filePath = path.join(PENDING_DIR, safeName);
+
+    if (!fs.existsSync(filePath) || !safeName.endsWith('.md')) {
+      return res.status(404).json(apiError(ErrorCode.NOT_FOUND, 'Note not found'));
+    }
+
+    const content = fs.readFileSync(filePath, 'utf-8');
+    res.json(success({
+      filename: safeName,
+      content,
+      title: extractTitle(content),
+    }));
+  } catch (error) {
+    console.error('Error getting pending note:', error);
+    res.status(500).json(apiError(ErrorCode.INTERNAL_ERROR, 'Failed to get note'));
+  }
+});
+
+router.post('/pending-notes/save', (req, res) => {
+  try {
+    const { title, content, sourceUrl, template } = req.body || {};
+
+    if (!content || !content.trim()) {
+      return res.status(400).json(apiError(ErrorCode.BAD_REQUEST, '内容不能为空'));
+    }
+
+    ensurePendingDir();
+
+    const noteTitle = (title || '未命名笔记').trim();
+    const timestamp = new Date().toISOString().slice(0, 10);
+    const baseName = safeFilename(`${timestamp}_${noteTitle}`);
+    let filename = `${baseName}.md`;
+    let counter = 1;
+
+    while (fs.existsSync(path.join(PENDING_DIR, filename))) {
+      filename = `${baseName}_${counter}.md`;
+      counter++;
+    }
+
+    const frontmatterLines = [
+      '---',
+      `title: ${noteTitle}`,
+      sourceUrl ? `source: ${sourceUrl}` : null,
+      template ? `template: ${template}` : null,
+      `date: ${new Date().toISOString()}`,
+      '---',
+      '',
+    ].filter((line): line is string => line !== null);
+
+    const frontmatter = frontmatterLines.join('\n');
+
+    const fullContent = frontmatter + content.trim() + '\n';
+
+    fs.writeFileSync(path.join(PENDING_DIR, filename), fullContent, 'utf-8');
+
+    res.json(success({
+      filename,
+      message: '保存成功',
+    }));
+  } catch (error) {
+    console.error('Error saving pending note:', error);
+    res.status(500).json(apiError(ErrorCode.INTERNAL_ERROR, 'Failed to save note'));
+  }
+});
+
+router.delete('/pending-notes/:filename', (req, res) => {
+  try {
+    const { filename } = req.params;
+    const safeName = safeFilename(filename);
+    const filePath = path.join(PENDING_DIR, safeName);
+
+    if (!fs.existsSync(filePath) || !safeName.endsWith('.md')) {
+      return res.status(404).json(apiError(ErrorCode.NOT_FOUND, 'Note not found'));
+    }
+
+    fs.unlinkSync(filePath);
+    res.json(success({ message: '删除成功' }));
+  } catch (error) {
+    console.error('Error deleting pending note:', error);
+    res.status(500).json(apiError(ErrorCode.INTERNAL_ERROR, 'Failed to delete note'));
   }
 });
 

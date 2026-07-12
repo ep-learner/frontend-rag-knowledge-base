@@ -1,6 +1,6 @@
 # API 接口文档
 
-> 最后更新：2026-07-06
+> 最后更新：2026-07-13
 > 基础路径：`/api`
 > 统一返回格式：`{ code: number, data: T | null, message: string }`
 > - `code = 0`：成功
@@ -24,6 +24,16 @@
 | **对话** | `/chat/logs` | GET | 获取对话日志列表 | 中 |
 | **对话** | `/chat/logs/stats` | GET | 获取日志统计数据 | 低 |
 | **对话** | `/chat/logs/:id` | GET | 获取单条日志详情 | 中 |
+| **内容** | `/content/stats` | GET | 内容层统计数据 | 中 |
+| **内容** | `/content/rebuild-status` | GET | 索引重建状态 | 中 |
+| **内容** | `/content/rebuild` | POST | 重建 RAG 索引 | 中 |
+| **内容** | `/content/knowledge-base/*` | GET | 知识库分类/文档 | 高 |
+| **内容** | `/content/learning-projects/*` | GET | 学习项目列表/详情 | 高 |
+| **内容** | `/content/source-notes/*` | GET | 来源笔记分类/文档 | 高 |
+| **内容** | `/content/pending-notes/list` | GET | 待整理笔记列表 | 高 |
+| **内容** | `/content/pending-notes/:filename` | GET | 待整理笔记详情 | 高 |
+| **内容** | `/content/pending-notes/save` | POST | 保存待整理笔记 | 高 |
+| **内容** | `/content/pending-notes/:filename` | DELETE | 删除待整理笔记 | 高 |
 
 **核心接口（6 个）**：文档列表、文档内容、上传文档、删除文档、普通对话、流式对话
 
@@ -410,4 +420,135 @@ data: {"content": "", "done": true}
 | 怀疑 API Key 过期了 | `pnpm test:integration` |
 | 改了 minimaxService 逻辑 | 先 `pnpm test`，再 `pnpm test:integration` |
 | 改了 chroma 向量检索 | `pnpm test` 够用，必要时跑集成 |
+
+---
+
+## 七、内容层接口（Content API）
+
+> 基础路径：`/api/content`
+> 直接读写文件系统（`content/` 目录），为前端提供内容渲染所需的数据。
+
+### 7.1 内容统计
+
+- **接口**：`GET /api/content/stats`
+- **返回 data**：
+
+```json
+{
+  "knowledgeBase": { "docCount": 10, "categoryCount": 5 },
+  "learningProjects": { "projectCount": 2 },
+  "sourceNotes": { "docCount": 3, "categoryCount": 2 },
+  "total": { "docCount": 15, "projectCount": 2 }
+}
+```
+
+---
+
+### 7.2 重建索引
+
+- **接口**：`POST /api/content/rebuild`
+- **请求体**：`{ "mode": "simple" | "semantic" }`（默认 simple）
+- **返回 data**：`{ "message": "rebuild started" }`
+- **查询状态**：`GET /api/content/rebuild-status`
+
+---
+
+### 7.3 知识库（knowledge-base）
+
+| 接口 | 方法 | 说明 |
+|------|------|------|
+| `/content/knowledge-base/categories` | GET | 分类列表 |
+| `/content/knowledge-base/docs?category=xxx` | GET | 分类下文档列表 |
+| `/content/knowledge-base/doc/*path` | GET | 单篇文档内容 |
+
+---
+
+### 7.4 学习项目（learning-projects）
+
+| 接口 | 方法 | 说明 |
+|------|------|------|
+| `/content/learning-projects/list` | GET | 项目列表 |
+| `/content/learning-projects/:id` | GET | 项目详情（manifest + README） |
+| `/content/learning-projects/:id/note/:noteId` | GET | 项目笔记内容 |
+| `/content/learning-projects/:id/demo/:demoId` | GET | Demo 静态文件（302 跳转） |
+
+---
+
+### 7.5 来源笔记（source-notes）
+
+| 接口 | 方法 | 说明 |
+|------|------|------|
+| `/content/source-notes/categories` | GET | 分类列表 |
+| `/content/source-notes/docs?category=xxx` | GET | 分类下文档列表 |
+| `/content/source-notes/doc/*path` | GET | 单篇文档内容 |
+
+---
+
+### 7.6 待整理笔记（pending-notes）⭐
+
+> 存放于 `content/active/03-source-notes/_pending/` 目录，下划线开头不会被 RAG 索引。
+
+#### 7.6.1 获取待整理列表
+
+- **接口**：`GET /api/content/pending-notes/list`
+- **返回 data**：
+
+```json
+{
+  "notes": [
+    {
+      "filename": "2026-07-13_React性能优化.md",
+      "title": "React性能优化技巧",
+      "sourceUrl": "https://...",
+      "template": "前端技术笔记（通用）",
+      "createdAt": 1783900000000
+    }
+  ],
+  "totalCount": 1
+}
+```
+
+---
+
+#### 7.6.2 获取单篇待整理笔记
+
+- **接口**：`GET /api/content/pending-notes/:filename`
+- **URL 参数**：`filename` - 文件名（URL 编码）
+- **返回 data**：
+
+```json
+{
+  "filename": "2026-07-13_React性能优化.md",
+  "title": "React性能优化技巧",
+  "content": "---\ntitle: React性能优化技巧\ntemplate: 前端技术笔记（通用）\n---\n\n原始内容..."
+}
+```
+
+---
+
+#### 7.6.3 保存待整理笔记
+
+- **接口**：`POST /api/content/pending-notes/save`
+- **请求体**：
+
+```json
+{
+  "title": "React性能优化技巧",
+  "content": "原始内容（格式随意）",
+  "sourceUrl": "https://...",
+  "template": "前端技术笔记（通用）"
+}
+```
+
+- **返回 data**：`{ "filename": "2026-07-13_React性能优化.md", "message": "saved" }`
+- **说明**：自动加 frontmatter（title / source / template / date），文件名格式 `YYYY-MM-DD_标题.md`
+
+---
+
+#### 7.6.4 删除待整理笔记
+
+- **接口**：`DELETE /api/content/pending-notes/:filename`
+- **返回 data**：`null`
+
+---
 

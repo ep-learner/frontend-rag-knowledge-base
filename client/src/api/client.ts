@@ -275,6 +275,36 @@ export const contentAPI = {
     const response = await api.get<ApiResponse<DocContent>>(`/content/source-notes/doc/${path}`)
     return response.data.data as DocContent
   },
+
+  // Pending Notes (待整理)
+  getPendingList: async (): Promise<{ notes: any[]; totalCount: number }> => {
+    const response = await api.get<ApiResponse<{ notes: any[]; totalCount: number }>>('/content/pending-notes/list')
+    return response.data.data as { notes: any[]; totalCount: number }
+  },
+
+  getPendingNote: async (filename: string): Promise<{ filename: string; content: string; title: string }> => {
+    const response = await api.get<ApiResponse<{ filename: string; content: string; title: string }>>(
+      `/content/pending-notes/${encodeURIComponent(filename)}`
+    )
+    return response.data.data as { filename: string; content: string; title: string }
+  },
+
+  savePendingNote: async (data: {
+    title: string
+    content: string
+    sourceUrl?: string
+    template?: string
+  }): Promise<{ filename: string; message: string }> => {
+    const response = await api.post<ApiResponse<{ filename: string; message: string }>>(
+      '/content/pending-notes/save',
+      data
+    )
+    return response.data.data as { filename: string; message: string }
+  },
+
+  deletePendingNote: async (filename: string): Promise<void> => {
+    await api.delete(`/content/pending-notes/${encodeURIComponent(filename)}`)
+  },
 }
 
 export default api
