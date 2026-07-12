@@ -4,6 +4,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import documentsRouter from './routes/documents';
 import chatRouter from './routes/chat';
+import contentRouter from './routes/content';
 import { chromaService } from './services/chroma';
 import { error as apiError, ErrorCode } from './utils/response';
 
@@ -19,6 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 
 app.use('/api/documents', documentsRouter);
 app.use('/api/chat', chatRouter);
+app.use('/api/content', contentRouter);
 
 app.get('/api/health', (req, res) => {
   res.json({

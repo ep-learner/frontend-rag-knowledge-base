@@ -1,0 +1,23 @@
+{
+  "id": "project-id",
+  "title": "项目标题",
+  "description": "一句话描述",
+  "tags": ["tag1", "tag2"],
+  "level": "beginner",
+  "coverImage": null,
+  "notes": [
+    {
+      "id": "note-1",
+      "title": "笔记 1",
+      "file": "notes/01-xxx.md"
+    }
+  ],
+  "demos": [
+    {
+      "id": "demo-1",
+      "title": "Demo 1",
+      "entry": "demo/index.html",
+      "description": "demo 说明"
+    }
+  ]
+}

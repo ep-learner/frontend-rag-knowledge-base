@@ -1,14 +1,16 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import { Home, MessageSquare, FileText } from 'lucide-react'
+import { Home, MessageSquare, BookMarked } from 'lucide-react'
 
 export default function Layout() {
   const location = useLocation()
 
   const navItems = [
     { path: '/', label: '首页', icon: Home },
+    { path: '/knowledge', label: '知识库', icon: BookMarked },
     { path: '/chat', label: '问答', icon: MessageSquare },
-    { path: '/documents', label: '文档管理', icon: FileText },
   ]
+
+  const isKnowledgeActive = location.pathname.startsWith('/knowledge')
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -25,7 +27,9 @@ export default function Layout() {
               <div className="hidden sm:ml-6 sm:flex sm:space-x-8">
                 {navItems.map((item) => {
                   const Icon = item.icon
-                  const isActive = location.pathname === item.path
+                  const isActive = item.path === '/knowledge'
+                    ? isKnowledgeActive
+                    : location.pathname === item.path
                   return (
                     <Link
                       key={item.path}

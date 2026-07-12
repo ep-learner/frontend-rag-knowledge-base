@@ -3,68 +3,174 @@ import path from 'path';
 import { chromaService, EmbeddingMode } from './services/chroma';
 import { splitText, extractTitle } from './utils/textSplitter';
 
-async function uploadDocuments(embeddingMode: EmbeddingMode = 'semantic') {
-  const docsPath = path.join(__dirname, '../../knowledge-docs');
-  
-  if (!fs.existsSync(docsPath)) {
-    console.error(`Directory not found: ${docsPath}`);
-    process.exit(1);
+const CONTENT_ROOT = path.join(__dirname, '../../content/active');
+const LEGACY_DOCS_PATH = path.join(__dirname, '../../knowledge-docs');
+
+export interface RebuildResult {
+  success: boolean;
+  totalFiles: number;
+  successFiles: number;
+  totalChunks: number;
+  collectionCount: number;
+  errors: string[];
+}
+
+interface RebuildStatus {
+  isRunning: boolean;
+  mode: EmbeddingMode | null;
+  startTime: number | null;
+  endTime: number | null;
+  progress: {
+    current: number;
+    total: number;
+    currentFile: string;
+  } | null;
+  lastResult: RebuildResult | null;
+}
+
+export const rebuildStatus: RebuildStatus = {
+  isRunning: false,
+  mode: null,
+  startTime: null,
+  endTime: null,
+  progress: null,
+  lastResult: null,
+};
+
+function collectMdFiles(dirPath: string, basePath: string): string[] {
+  const results: string[] = [];
+
+  if (!fs.existsSync(dirPath)) {
+    return results;
   }
 
-  console.log(`\nEmbedding mode: ${embeddingMode === 'semantic' ? '语义向量 (Minimax API)' : '简单哈希 (本地)'}`);
-  console.log(`Note: ${embeddingMode === 'semantic' ? '将消耗 Token，上传时间较长' : '不消耗 Token，上传速度快'}`);
+  const entries = fs.readdirSync(dirPath, { withFileTypes: true });
 
-  const dirs = fs.readdirSync(docsPath, { withFileTypes: true })
-    .filter(dir => dir.isDirectory())
-    .map(dir => dir.name);
+  for (const entry of entries) {
+    const fullPath = path.join(dirPath, entry.name);
 
-  let totalFiles = 0;
-  let totalChunks = 0;
-  let successCount = 0;
+    if (entry.isDirectory()) {
+      results.push(...collectMdFiles(fullPath, basePath));
+    } else if (entry.isFile() && entry.name.endsWith('.md')) {
+      results.push(path.relative(basePath, fullPath));
+    }
+  }
 
-  for (const dir of dirs) {
-    const dirPath = path.join(docsPath, dir);
-    const files = fs.readdirSync(dirPath).filter(file => file.endsWith('.md'));
+  return results;
+}
 
-    console.log(`\nProcessing directory: ${dir} (${files.length} files)`);
+function resolveDocsPath(): { path: string; label: string } | null {
+  if (fs.existsSync(CONTENT_ROOT)) {
+    return { path: CONTENT_ROOT, label: 'content/active' };
+  } else if (fs.existsSync(LEGACY_DOCS_PATH)) {
+    return { path: LEGACY_DOCS_PATH, label: 'knowledge-docs (legacy)' };
+  }
+  return null;
+}
 
-    for (const file of files) {
+export async function rebuildIndex(embeddingMode: EmbeddingMode = 'simple'): Promise<RebuildResult> {
+  const result: RebuildResult = {
+    success: true,
+    totalFiles: 0,
+    successFiles: 0,
+    totalChunks: 0,
+    collectionCount: 0,
+    errors: [],
+  };
+
+  const docsInfo = resolveDocsPath();
+  if (!docsInfo) {
+    result.success = false;
+    result.errors.push('No content directory found');
+    return result;
+  }
+
+  rebuildStatus.isRunning = true;
+  rebuildStatus.mode = embeddingMode;
+  rebuildStatus.startTime = Date.now();
+  rebuildStatus.endTime = null;
+  rebuildStatus.progress = null;
+
+  try {
+    const mdFiles = collectMdFiles(docsInfo.path, docsInfo.path);
+    result.totalFiles = mdFiles.length;
+
+    rebuildStatus.progress = {
+      current: 0,
+      total: mdFiles.length,
+      currentFile: '',
+    };
+
+    for (let i = 0; i < mdFiles.length; i++) {
+      const relPath = mdFiles[i];
+      rebuildStatus.progress.current = i + 1;
+      rebuildStatus.progress.currentFile = relPath;
+
       try {
-        const content = fs.readFileSync(path.join(dirPath, file), 'utf-8');
+        const fullPath = path.join(docsInfo.path, relPath);
+        const content = fs.readFileSync(fullPath, 'utf-8');
         const chunks = splitText(content);
         const title = extractTitle(content);
-        const ids = chunks.map((_, index) => `${dir}/${file}-${index}-${Date.now()}`);
+        const ids = chunks.map((_, index) => `${relPath}-${index}-${Date.now()}`);
         const metadatas = chunks.map(() => ({
-          source: `${dir}/${file}`,
+          source: relPath,
           title,
         }));
 
         await chromaService.addDocuments(chunks, metadatas, ids, embeddingMode);
 
-        totalFiles++;
-        totalChunks += chunks.length;
-        successCount++;
-
-        console.log(`✓ ${file}: ${chunks.length} chunks`);
+        result.successFiles++;
+        result.totalChunks += chunks.length;
       } catch (error) {
-        console.error(`✗ ${file}: ${(error as Error).message}`);
+        result.errors.push(`${relPath}: ${(error as Error).message}`);
       }
     }
+
+    const stats = await chromaService.getCollectionStats();
+    result.collectionCount = stats.count;
+  } catch (error) {
+    result.success = false;
+    result.errors.push(`Fatal error: ${(error as Error).message}`);
+  } finally {
+    rebuildStatus.isRunning = false;
+    rebuildStatus.endTime = Date.now();
+    rebuildStatus.lastResult = result;
   }
 
-  const stats = await chromaService.getCollectionStats();
-
-  console.log(`\n=== Upload Summary ===`);
-  console.log(`Total directories processed: ${dirs.length}`);
-  console.log(`Total files uploaded: ${successCount}/${totalFiles}`);
-  console.log(`Total chunks created: ${totalChunks}`);
-  console.log(`Collection document count: ${stats.count}`);
+  return result;
 }
 
-const args = process.argv.slice(2);
-const embeddingMode: EmbeddingMode = args.includes('--simple') ? 'simple' : 'semantic';
+if (require.main === module) {
+  const args = process.argv.slice(2);
+  const embeddingMode: EmbeddingMode = args.includes('--simple') ? 'simple' : 'semantic';
 
-uploadDocuments(embeddingMode).catch(error => {
-  console.error('Error uploading documents:', error);
-  process.exit(1);
-});
+  const docsInfo = resolveDocsPath();
+  if (!docsInfo) {
+    console.error('No content directory found. Looked for:');
+    console.error(`  - ${CONTENT_ROOT}`);
+    console.error(`  - ${LEGACY_DOCS_PATH}`);
+    process.exit(1);
+  }
+
+  console.log(`\nContent source: ${docsInfo.label}`);
+  console.log(`Content path: ${docsInfo.path}`);
+  console.log(`\nEmbedding mode: ${embeddingMode === 'semantic' ? 'Semantic (Minimax API)' : 'Simple hash (local)'}`);
+  console.log(`Note: ${embeddingMode === 'semantic' ? 'Will consume tokens, slower upload' : 'No token consumption, fast upload'}`);
+
+  rebuildIndex(embeddingMode).then((result) => {
+    console.log(`\n=== Upload Summary ===`);
+    console.log(`Total files processed: ${result.successFiles}/${result.totalFiles}`);
+    console.log(`Total chunks created: ${result.totalChunks}`);
+    console.log(`Collection document count: ${result.collectionCount}`);
+    if (result.errors.length > 0) {
+      console.log(`\nErrors (${result.errors.length}):`);
+      result.errors.forEach((e) => console.log(`  - ${e}`));
+    }
+    if (!result.success) {
+      process.exit(1);
+    }
+  }).catch((error) => {
+    console.error('Error uploading documents:', error);
+    process.exit(1);
+  });
+}

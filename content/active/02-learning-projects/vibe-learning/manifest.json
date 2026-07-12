@@ -1,0 +1,66 @@
+{
+  "id": "vibe-learning",
+  "title": "VibeVibe AI 编程学习项目",
+  "description": "从零搭建 AI 编程助手的完整学习路径，包含基础篇和进阶篇",
+  "tags": ["AI", "RAG", "前端", "Minimax", "VibeVibe"],
+  "level": "intermediate",
+  "status": "active",
+  "coverImage": null,
+  "notes": [
+    {
+      "id": "happy-coder-advanced",
+      "title": "Happy Coder 进阶篇学习笔记",
+      "file": "notes/HappyCoder进阶篇学习笔记.md",
+      "section": "拓展阅读"
+    },
+    {
+      "id": "vibe-base-notes",
+      "title": "VibeVibe 基础篇学习笔记",
+      "file": "notes/base-level/vibeVibe基础篇学习笔记.md",
+      "section": "基础篇"
+    },
+    {
+      "id": "vibe-base-steps",
+      "title": "基础篇执行步骤",
+      "file": "notes/base-level/基础篇执行步骤.md",
+      "section": "基础篇"
+    },
+    {
+      "id": "vibe-next-notes",
+      "title": "VibeVibe 进阶篇学习笔记",
+      "file": "notes/next-level/VibeVibe进阶篇学习笔记.md",
+      "section": "进阶篇"
+    },
+    {
+      "id": "vibe-next-priority",
+      "title": "进阶篇核心开发内容与优先级",
+      "file": "notes/next-level/进阶篇核心开发内容与优先级.md",
+      "section": "进阶篇"
+    }
+  ],
+  "demos": [
+    {
+      "id": "base-demo",
+      "title": "基础篇 Demo - AI 聊天界面",
+      "description": "基础篇实现的简易 AI 聊天界面",
+      "entry": "demos/base-demo/index.html"
+    }
+  ],
+  "sections": [
+    {
+      "id": "base-level",
+      "title": "基础篇",
+      "description": "从零搭建 RAG 知识库基础功能"
+    },
+    {
+      "id": "next-level",
+      "title": "进阶篇",
+      "description": "进阶功能与架构优化"
+    },
+    {
+      "id": "extra",
+      "title": "拓展阅读",
+      "description": "相关项目与拓展学习"
+    }
+  ]
+}
