@@ -1,0 +1,25 @@
+{
+  "id": "n8n",
+  "title": "n8n 工作流引擎学习",
+  "description": "n8n 自托管可视化工作流编排引擎的架构分析与学习笔记",
+  "tags": ["工作流", "自动化", "AI Agent", "Node.js", "架构"],
+  "level": "intermediate",
+  "status": "active",
+  "coverImage": null,
+  "notes": [
+    {
+      "id": "n8n-main-notes",
+      "title": "n8n 学习笔记",
+      "file": "notes/n8n学习笔记.md",
+      "section": "核心学习"
+    }
+  ],
+  "demos": [],
+  "sections": [
+    {
+      "id": "core",
+      "title": "核心学习",
+      "description": "n8n 核心架构与设计思想"
+    }
+  ]
+}
