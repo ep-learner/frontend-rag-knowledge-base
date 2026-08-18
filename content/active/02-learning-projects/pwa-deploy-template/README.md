@@ -75,16 +75,16 @@ my-app/
 
 ## 进阶：文件从哪来？
 
-本目录 `pwa-deploy-template/` 已经放好了 6 个模板文件，复制一份改改就能用：
+本目录已经放好了 6 个模板文件，复制一份改改就能用：
 
-- [index.html](pwa-deploy-template/index.html) — 改标题
-- [manifest.json](pwa-deploy-template/manifest.json) — 改名称和颜色
-- [sw.js](pwa-deploy-template/sw.js) — 不用改
-- [style.css](pwa-deploy-template/style.css) — 改样式
-- [app.js](pwa-deploy-template/app.js) — 加业务逻辑
-- [icon.svg](pwa-deploy-template/icon.svg) — 用 realfavicongenerator 生成 PNG 版替换
+- [index.html](index.html) — 改标题
+- [manifest.json](manifest.json) — 改名称和颜色
+- [sw.js](sw.js) — 不用改
+- [style.css](style.css) — 改样式
+- [app.js](app.js) — 加业务逻辑
+- [icon.svg](icon.svg) — 用 realfavicongenerator 生成 PNG 版替换
 
 ## 想深入了解？
 
-- [PWA 完整学习笔记](../01-knowledge-base/08-工程化与部署/PWA渐进式Web应用.md)
+- [PWA 完整学习笔记](../../01-knowledge-base/08-工程化与部署/PWA渐进式Web应用.md)
 - [Cloudflare Pages 部署 SKILL](../../../.trae/skills/cloudflare-pages-deploy/SKILL.md)

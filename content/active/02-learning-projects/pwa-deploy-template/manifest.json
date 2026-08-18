@@ -1,0 +1,30 @@
+{
+  "id": "pwa-deploy-template",
+  "title": "PWA 静态部署模板",
+  "description": "6 文件最小 PWA 模板 + 小白部署教程，零代码基础 3 步把网页变成手机 APP",
+  "tags": ["PWA", "Cloudflare Pages", "部署", "移动端"],
+  "level": "beginner",
+  "status": "active",
+  "coverImage": null,
+  "notes": [],
+  "demos": [
+    {
+      "id": "pwa-template",
+      "title": "PWA 最小模板",
+      "description": "6 文件最小 PWA，可直接部署到 Cloudflare Pages",
+      "entry": "index.html"
+    }
+  ],
+  "sections": [
+    {
+      "id": "template",
+      "title": "模板文件",
+      "description": "6 个 PWA 核心文件，复制即用"
+    },
+    {
+      "id": "guide",
+      "title": "部署教程",
+      "description": "3 步小白教程：准备文件 → Cloudflare Pages → 手机安装"
+    }
+  ]
+}

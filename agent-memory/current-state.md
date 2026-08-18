@@ -105,19 +105,21 @@
 ### 🆕 新增：PWA 部署体系（2026-08-19）
 - **Skill**：`.trae/skills/cloudflare-pages-deploy/SKILL.md` — 可执行的静态 PWA 部署流程
 - **学习笔记**：`content/active/01-knowledge-base/08-工程化与部署/PWA渐进式Web应用.md` — PWA 完整知识体系
-- **分享模板**：`content/active/03-learning-projects/pwa-deploy-template/` — 6 文件最小 PWA 模板 + 小白教程 README
+- **分享模板**：`content/active/02-learning-projects/pwa-deploy-template/` — 6 文件最小 PWA 模板 + 小白教程 README + manifest.json
 - **Demo 归档**：`plans/archive/baby-workbench-2026-08-19/` — 带娃工作台已归档（功能验证完成）
 - **已验证**：Cloudflare Pages 部署走通，PWA 三件套（manifest+sw+icon）正常，iOS/Android 可安装
+- **部署测试 Plan**：`plans/active/deploy-platform-test/` — Workers vs Vercel 能力边界测试
 
 ### 🔄 进行中
 - 无
 
 ### 📋 待开始（按优先级）
-1. **[中]** 部署到公网：Vercel 前端 + 后端部署方案
-2. **[中]** 前端 API 层拆分：client.ts 按模块拆分
-3. **[中]** 数据库持久化：向量库从 JSON 文件迁到 SQLite
-4. **[低]** CI/CD：GitHub Actions 自动跑测试
-5. **[低]** 更多测试覆盖：batch-upload、stream 流式对话
+1. **[高]** 部署平台能力边界测试：Workers vs Vercel vs 跨域（见 deploy-platform-test plan）
+2. **[中]** 部署到公网：Vercel 前端 + 后端部署方案
+3. **[中]** 前端 API 层拆分：client.ts 按模块拆分
+4. **[中]** 数据库持久化：向量库从 JSON 文件迁到 SQLite
+5. **[低]** CI/CD：GitHub Actions 自动跑测试
+6. **[低]** 更多测试覆盖：batch-upload、stream 流式对话
 
 > 更多低优先级/长期想法见 [plans/active/backlog.md](../plans/active/backlog.md)
 
