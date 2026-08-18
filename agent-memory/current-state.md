@@ -1,6 +1,6 @@
 # 当前项目状态
 
-> 最后更新：2026-07-13
+> 最后更新：2026-08-19
 > 状态：视频笔记工具迭代完成，转向「插件提取 + 模板整理」方案
 
 ---
@@ -102,16 +102,15 @@
   - 适配场景：FaaS 构建平台、组件库、知识库等「原子单元+组合单元」双层结构项目
   - 位置：`content/templates/agent-collaboration/`
 
+### 🆕 新增：PWA 部署体系（2026-08-19）
+- **Skill**：`.trae/skills/cloudflare-pages-deploy/SKILL.md` — 可执行的静态 PWA 部署流程
+- **学习笔记**：`content/active/01-knowledge-base/08-工程化与部署/PWA渐进式Web应用.md` — PWA 完整知识体系
+- **分享模板**：`content/active/03-learning-projects/pwa-deploy-template/` — 6 文件最小 PWA 模板 + 小白教程 README
+- **Demo 归档**：`plans/archive/baby-workbench-2026-08-19/` — 带娃工作台已归档（功能验证完成）
+- **已验证**：Cloudflare Pages 部署走通，PWA 三件套（manifest+sw+icon）正常，iOS/Android 可安装
+
 ### 🔄 进行中
 - 无
-
-### 🆕 新增项目：带娃工作台 PWA（2026-08-19）
-- **位置**：`plans/active/baby-workbench/`
-- **性质**：独立于主 RAG 系统的纯静态 PWA（育儿追踪工具）
-- **技术**：HTML/CSS/JS + PWA 三件套，零构建、零依赖
-- **功能**：8 大模块（数据总览/今日任务/每周主题/活动库/发育观察/养育原则/教具清单/英文启蒙）
-- **数据**：localStorage 持久化，可导出 JSON 备份
-- **状态**：开发完成，待部署到 Cloudflare Pages 获得公网链接
 
 ### 📋 待开始（按优先级）
 1. **[中]** 部署到公网：Vercel 前端 + 后端部署方案
