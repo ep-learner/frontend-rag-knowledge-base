@@ -9,17 +9,17 @@
   "notes": [],
   "demos": [
     {
-      "id": "pwa-template",
+      "id": "minimal-pwa",
       "title": "PWA 最小模板",
-      "description": "6 文件最小 PWA，可直接部署到 Cloudflare Pages",
-      "entry": "index.html"
+      "description": "7 文件最小 PWA，可直接部署到 Cloudflare Pages",
+      "entry": "demos/minimal-pwa/index.html"
     }
   ],
   "sections": [
     {
       "id": "template",
       "title": "模板文件",
-      "description": "6 个 PWA 核心文件，复制即用"
+      "description": "7 个 PWA 核心文件，复制即用"
     },
     {
       "id": "guide",

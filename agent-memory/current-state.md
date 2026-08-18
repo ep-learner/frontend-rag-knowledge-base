@@ -105,7 +105,7 @@
 ### 🆕 新增：PWA 部署体系（2026-08-19）
 - **Skill**：`.trae/skills/cloudflare-pages-deploy/SKILL.md` — 可执行的静态 PWA 部署流程
 - **学习笔记**：`content/active/01-knowledge-base/08-工程化与部署/PWA渐进式Web应用.md` — PWA 完整知识体系
-- **分享模板**：`content/active/02-learning-projects/pwa-deploy-template/` — 6 文件最小 PWA 模板 + 小白教程 README + manifest.json
+- **分享模板**：`content/active/02-learning-projects/pwa-deploy-template/` — 7 文件最小 PWA 模板（demos/minimal-pwa/）+ 小白教程 README + AGENT.md + manifest.json
 - **Demo 归档**：`plans/archive/baby-workbench-2026-08-19/` — 带娃工作台已归档（功能验证完成）
 - **已验证**：Cloudflare Pages 部署走通，PWA 三件套（manifest+sw+icon）正常，iOS/Android 可安装
 - **部署测试 Plan**：`plans/active/deploy-platform-test/` — Workers vs Vercel 能力边界测试

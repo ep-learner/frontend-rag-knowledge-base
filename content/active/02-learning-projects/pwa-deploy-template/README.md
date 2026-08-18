@@ -75,14 +75,15 @@ my-app/
 
 ## 进阶：文件从哪来？
 
-本目录已经放好了 6 个模板文件，复制一份改改就能用：
+本项目 `demos/minimal-pwa/` 已经放好了 7 个模板文件，复制一份改改就能用：
 
-- [index.html](index.html) — 改标题
-- [manifest.json](manifest.json) — 改名称和颜色
-- [sw.js](sw.js) — 不用改
-- [style.css](style.css) — 改样式
-- [app.js](app.js) — 加业务逻辑
-- [icon.svg](icon.svg) — 用 realfavicongenerator 生成 PNG 版替换
+- [index.html](demos/minimal-pwa/index.html) — 改标题
+- [manifest.json](demos/minimal-pwa/manifest.json) — 改名称和颜色
+- [sw.js](demos/minimal-pwa/sw.js) — 不用改（部署时改 CACHE_NAME 版本号）
+- [style.css](demos/minimal-pwa/style.css) — 改样式
+- [app.js](demos/minimal-pwa/app.js) — 加业务逻辑
+- [icon.svg](demos/minimal-pwa/icon.svg) — 用 realfavicongenerator 生成 PNG 版替换
+- [apple-touch-icon.png](demos/minimal-pwa/apple-touch-icon.png) — 替换成自定义 192x192 图标
 
 ## 想深入了解？
 
