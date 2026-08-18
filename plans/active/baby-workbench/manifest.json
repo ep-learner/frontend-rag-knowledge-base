@@ -1,0 +1,19 @@
+{
+  "name": "带娃工作台",
+  "short_name": "带娃",
+  "description": "12-14 月龄育儿追踪工作台 · 本地优先 PWA",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#ffffff",
+  "theme_color": "#ff6b6b",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
