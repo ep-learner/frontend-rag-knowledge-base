@@ -1,14 +1,14 @@
 // 带娃工作台 PWA Service Worker
 // 作用：把所有静态资源缓存到本地，断网也能打开
 
-const CACHE_NAME = 'baby-workbench-v1';
+const CACHE_NAME = 'baby-workbench-v2';
 const ASSETS = [
   './',
   './index.html',
   './style.css',
   './app.js',
   './manifest.json',
-  './icon.svg'
+  './apple-touch-icon.png'
 ];
 
 // 安装：预缓存所有静态资源
