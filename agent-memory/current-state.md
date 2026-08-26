@@ -1,7 +1,7 @@
 # 当前项目状态
 
-> 最后更新：2026-08-19
-> 状态：视频笔记工具迭代完成，转向「插件提取 + 模板整理」方案
+> 最后更新：2026-08-22
+> 状态：循证营养师 Skill（nutrition-advisor）开发完成，两个 Case 全链路测试输出通过
 
 ---
 
@@ -101,14 +101,26 @@
   - 产出可复用的 AGENT.md + 2 个核心 skill（project-init + commit-with-check）
   - 适配场景：FaaS 构建平台、组件库、知识库等「原子单元+组合单元」双层结构项目
   - 位置：`content/templates/agent-collaboration/`
-
-### 🆕 新增：PWA 部署体系（2026-08-19）
-- **Skill**：`.trae/skills/cloudflare-pages-deploy/SKILL.md` — 可执行的静态 PWA 部署流程
-- **学习笔记**：`content/active/01-knowledge-base/08-工程化与部署/PWA渐进式Web应用.md` — PWA 完整知识体系
-- **分享模板**：`content/active/02-learning-projects/pwa-deploy-template/` — 7 文件最小 PWA 模板（demos/minimal-pwa/）+ 小白教程 README + AGENT.md + manifest.json
-- **Demo 归档**：`plans/archive/baby-workbench-2026-08-19/` — 带娃工作台已归档（功能验证完成）
-- **已验证**：Cloudflare Pages 部署走通，PWA 三件套（manifest+sw+icon）正常，iOS/Android 可安装
-- **部署测试 Plan**：`plans/active/deploy-platform-test/` — Workers vs Vercel 能力边界测试
+- **PWA 部署体系**（2026-08-19）：
+  - **Skill**：`.trae/skills/cloudflare-pages-deploy/SKILL.md` — 可执行的静态 PWA 部署流程
+  - **学习笔记**：`content/active/01-knowledge-base/08-工程化与部署/PWA渐进式Web应用.md` — PWA 完整知识体系
+  - **分享模板**：`content/active/02-learning-projects/pwa-deploy-template/` — 7 文件最小 PWA 模板（demos/minimal-pwa/）+ 小白教程 README + AGENT.md + manifest.json
+  - **Demo 归档**：`plans/archive/baby-workbench-2026-08-19/` — 带娃工作台已归档（功能验证完成）
+  - **已验证**：Cloudflare Pages 部署走通，PWA 三件套（manifest+sw+icon）正常，iOS/Android 可安装
+  - **部署测试 Plan**：`plans/active/deploy-platform-test/` — Workers vs Vercel 能力边界测试
+- **循证营养师 Skill（nutrition-advisor）**（2026-08-22，🆕 新增）：
+  - **Skill 位置**：`.trae/skills/nutrition-advisor/SKILL.md`
+  - **方案选择**：融合 GitHub 调研的 3 个方案（personal-trainer-skill 证据分级 + H1an1/health-coach 本土化 + 循证校验 Prompt 结构约束），优先对齐《中国居民膳食指南2022》《中国DRIs 2023》
+  - **核心能力（6段强制输出）**：一句话结论 → 证据等级Strong/Moderate/Low+来源 → 可执行量化方案 → 适用边界禁忌 → 三级客观验证路径（居家→医院不靠体感）→ 二次查证检索关键词+权威源白名单
+  - **Case1 测试通过**：`plans/active/food-skill/case1-output-demo.md`（28岁男作息饮食不规律易疲惫）
+  - **Case2 测试通过**：`plans/active/food-skill/case2-output-demo.md`（25岁男暴走后半月板疼是否缺钙）
+  - **解决用户原始3大痛点**：①鉴别AI对错（证据分级+显式出处）②不靠体感验证效果（三级验证时间节点+指标）③防止被广告忽悠（检索源白名单+避坑提醒）
+  - **Skill 现有总数**：project-init、commit-with-check、source-note-organizer、cloudflare-pages-deploy、nutrition-advisor（共 5 个）
+- **陌生领域 AI 输出信任建立 方法论学习笔记**（2026-08-22，🆕 新增）：
+  - **笔记位置**：`content/active/01-knowledge-base/09-AI协作与方法论/陌生领域AI输出信任建立-Skill三段式工作流.md`
+  - **核心内容**：通用三段式工作流 `originPrd（需求结构化）+ case.md（测试用例）+ plan.md（高star skill检索筛选）`，附可复用模板
+  - **包含**：① 6段可信输出结构设计（任意领域通用）② 三档证据分级标准（简化版GRADE）③ 4个GitHub筛选避坑标准 ④ 营养师项目完整复盘作为实例 ⑤ 5个常见误区 ⑥ 检索源白名单
+  - **适用**：任何陌生领域（护肤/法律/财税/养宠…），不想深入但想要放心结论的场景
 
 ### 🔄 进行中
 - 无
@@ -143,6 +155,7 @@
 1. **部署到公网**：Vercel 前端 + 后端部署方案（部署前必须加鉴权）
 2. **数据库持久化**：向量库从 JSON 文件迁到 SQLite，这是很多功能的基础
 3. **前端 API 层拆分**：client.ts 按模块拆分，提高可维护性
+4. **（可选，营养师Skill后续）**：如果要真正落地用，把膳食指南2022 PDF接入本地RAG知识库，Skill里加前置约束优先检索本地知识库
 
 ---
 
@@ -161,3 +174,8 @@
 | Agent 入口指南 | [AGENT.md](../AGENT.md) |
 | 沙盒踩坑 | [playbook/sandbox-tips.md](playbook/sandbox-tips.md) |
 | 常用命令 | [playbook/common-commands.md](playbook/common-commands.md) |
+| **营养师 Skill（新）** | [.trae/skills/nutrition-advisor/SKILL.md](../.trae/skills/nutrition-advisor/SKILL.md) |
+| 营养师 Skill Case1 示例输出 | [plans/active/food-skill/case1-output-demo.md](../plans/active/food-skill/case1-output-demo.md) |
+| 营养师 Skill Case2 示例输出 | [plans/active/food-skill/case2-output-demo.md](../plans/active/food-skill/case2-output-demo.md) |
+| **陌生领域AI信任方法论笔记（新）** | [content/active/01-knowledge-base/09-AI协作与方法论/陌生领域AI输出信任建立-Skill三段式工作流.md](../content/active/01-knowledge-base/09-AI协作与方法论/陌生领域AI输出信任建立-Skill三段式工作流.md) |
+
