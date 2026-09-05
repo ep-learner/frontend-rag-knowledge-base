@@ -1,7 +1,7 @@
 # 当前项目状态
 
-> 最后更新：2026-08-22
-> 状态：循证营养师 Skill（nutrition-advisor）开发完成，两个 Case 全链路测试输出通过
+> 最后更新：2026-08-27
+> 状态：create-industry-skill（陌生行业可信Skill生成器）开发完成，5步标准化流程全验证，内置10个references模板+示例，原方法论笔记升级为使用说明
 
 ---
 
@@ -121,6 +121,16 @@
   - **核心内容**：通用三段式工作流 `originPrd（需求结构化）+ case.md（测试用例）+ plan.md（高star skill检索筛选）`，附可复用模板
   - **包含**：① 6段可信输出结构设计（任意领域通用）② 三档证据分级标准（简化版GRADE）③ 4个GitHub筛选避坑标准 ④ 营养师项目完整复盘作为实例 ⑤ 5个常见误区 ⑥ 检索源白名单
   - **适用**：任何陌生领域（护肤/法律/财税/养宠…），不想深入但想要放心结论的场景
+- **陌生行业可信 Skill 生成器（create-industry-skill）**（2026-08-27，🆕 核心新增，上述笔记升级为可执行Skill）：
+  - **Skill 位置**：`.trae/skills/create-industry-skill/SKILL.md`
+  - **设计定位**：这是「Skill 的 Skill」，输入一段原始诉求，按标准化5步流程产出带证据链的行业可信 Skill
+  - **5 步强制流程（分工明确）**：Step1 提炼PRD+用户确认（基准唯一）→ Step2 GitHub高star调研出plan → Step3 准出规范（6段结构+证据分级13条Checklist）→ **Step4 必须用户自写case**（Agent不代写，保证真实场景）→ Step5 Agent自测到全过 → 用户验收（不满意改规则，不改输出）
+  - **内置 references（Skill 100%自包含，不依赖外部plans）**：
+    - `templates/` 4 个填空模板：originPrd / plan / acceptance-specs / case
+    - `food-skill-example/` 6 个营养师项目完整示例（均弱化业务语义，标注「看结构不要看内容」）
+  - **使用说明**：原方法论笔记已改造为配套使用说明（含快速上手6步+每步对应Skill映射+附录文件索引）
+  - **价值**：nutrition-advisor 只是单个行业Skill的副产物，create-industry-skill 是通用流程标准化，可复制到任何陌生行业
+  - **当前 Skill 总数**：6 个（project-init / commit-with-check / source-note-organizer / cloudflare-pages-deploy / nutrition-advisor / create-industry-skill）
 
 ### 🔄 进行中
 - 无
@@ -177,5 +187,9 @@
 | **营养师 Skill（新）** | [.trae/skills/nutrition-advisor/SKILL.md](../.trae/skills/nutrition-advisor/SKILL.md) |
 | 营养师 Skill Case1 示例输出 | [plans/active/food-skill/case1-output-demo.md](../plans/active/food-skill/case1-output-demo.md) |
 | 营养师 Skill Case2 示例输出 | [plans/active/food-skill/case2-output-demo.md](../plans/active/food-skill/case2-output-demo.md) |
-| **陌生领域AI信任方法论笔记（新）** | [content/active/01-knowledge-base/09-AI协作与方法论/陌生领域AI输出信任建立-Skill三段式工作流.md](../content/active/01-knowledge-base/09-AI协作与方法论/陌生领域AI输出信任建立-Skill三段式工作流.md) |
+| **陌生领域AI信任方法论笔记（已升级为使用说明）** | [content/active/01-knowledge-base/09-AI协作与方法论/陌生领域AI输出信任建立-Skill三段式工作流.md](../content/active/01-knowledge-base/09-AI协作与方法论/陌生领域AI输出信任建立-Skill三段式工作流.md) |
+| **create-industry-skill 主文件（核心新增）** | [.trae/skills/create-industry-skill/SKILL.md](../.trae/skills/create-industry-skill/SKILL.md) |
+| create-industry-skill 模板（4个） | `../.trae/skills/create-industry-skill/references/templates/` |
+| create-industry-skill 营养师示例（6个） | `../.trae/skills/create-industry-skill/references/food-skill-example/` |
+
 

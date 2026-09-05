@@ -1,10 +1,28 @@
-# 陌生领域 AI 输出信任建立：Skill 三段式工作流
+# 使用说明：陌生领域 AI 输出信任建立 — create-industry-skill Skill 三段式工作流
 
+> **📌 重要：本文是 create-industry-skill 的配套使用说明。**
+> - **Skill 主文件（先看这个）**：[.trae/skills/create-industry-skill/SKILL.md](file:///d:/clawProject/zero_point/frontend-rag-knowledge-base/.trae/skills/create-industry-skill/SKILL.md) — 5 步标准化流程+明确分工+准出条件
+> - **直接套用的模板**：Skill 自带 `references/templates/` 目录（4 个可复制模板，填空就行）
+> - **完整示例（对照参考）**：Skill 自带 `references/food-skill-example/` 目录（营养师项目 6 文件示例，看结构不要看营养内容）
+>
+> 一句话总结：**面对完全陌生的行业，不想钻研又怕被 AI 骗 → 调用 create-industry-skill Skill，它会按「PRD对齐→调研plan→准出规范→用户自写case→自测+验收」5步流程，帮你产出一个带证据分级、可验证、你能每条自己查证的行业 Skill。**
+>
 > **分类**：AI 协作方法论 / Skill 开发 / 反幻觉
 > **难度**：入门
-> **更新日期**：2026-08-22
+> **更新日期**：2026-08-27
 
-> 一句话总结：**面对完全陌生的行业，不想钻研又怕被 AI 骗 → 用「originPrd（我要什么）+ case.md（怎么测）+ plan.md（找现成高 star Skill/方案）」三段式流程，强制 AI 用「证据分级 + 验证路径 + 检索关键词」结构化输出，把可信度从「它说啥我信啥」拉到「我能每条自己查证」。**
+---
+
+## ⚡ 快速上手路径（从零开始产出一个可信Skill，只要 5 步）
+
+1. **启动 Skill**：在对话里说「用 create-industry-skill」+ 贴你的**原始诉求**（哪怕是一段碎碎念都行，不需要结构化）
+2. **Step1 确认 PRD**：Agent 会把你原始诉求提炼成结构化 PRD（用 templates/originPrd-TEMPLATE.md 模板），你只需要逐条看：**核心问题有没有列全？默认补齐的要求你认不认？** OK 就回复「PRD 确认通过」
+3. **Step2 确认 Plan**：Agent 按 PRD 去 GitHub 搜高 star Skill/方案，按匹配度排 3~5 个做对比表+推荐哪几个融合。你看表格就行，OK 回复「方案确认通过」
+4. **Step3 补准出规范**：Agent 先补齐通用准出规范（6段结构+证据分级+检索白名单，在 templates/acceptance-specs-TEMPLATE.md），你只需要补**行业特殊规则**（比如营养要对齐中国膳食指南、法律要标注适用地区）。OK 回复「准出规范确认通过」
+5. **Step4 你自己写 case**：这一步必须你写（Agent 不代写）。按 templates/case-TEMPLATE.md 模板写 2~3 个你真实会问的场景（口语化、缺信息没关系）。写完发给 Agent
+6. **Step5 验收**：Agent 先自己按准出规范自测，全过了再交给你。你打开每个 case 输出 demo，看准出规范的 13 条 Checklist 有没有全过。不满意的就**补 PRD/准出/plan 的规则**，不要改输出文件，让 Agent 重跑。全部 OK 回复「验收通过」
+
+> 完成后你会得到：`.trae/skills/{行业名}-advisor/SKILL.md`（可直接调用的 Skill 文件）+ `plans/active/{行业名}-skill/` 全流程文档（任何时候想升级 Skill，看这些文件就能续上上下文）
 
 ---
 
@@ -54,7 +72,9 @@
 
 ## 二、三段式工作流详解（每一步你要给什么信息）
 
-### 2.1 第一步：originPrd.md — 「我到底想要什么，写清楚」
+### 2.1 第一步：originPrd.md — 「我到底想要什么，写清楚」【对应 create-industry-skill Skill Step1】
+
+> 🚀 **Skill 里直接有模板**：`.trae/skills/create-industry-skill/references/templates/originPrd-TEMPLATE.md` — 复制填空就行，Agent 会自动帮你把模糊诉求提炼到结构里，你只负责 Review 和确认。
 
 **作用**：把你脑子里模糊的想法，变成结构化的需求文档。**越具体，AI 越不容易瞎发挥。**
 
@@ -104,7 +124,11 @@
 
 ---
 
-### 2.2 第二步：case.md — 「拿什么场景测，先写好」
+### 2.2 第二步：case.md — 「拿什么场景测，先写好」【对应 create-industry-skill Skill Step4】
+
+> ⚠️ **这一步必须用户自己写，Agent 不代劳**（Skill 里明确规定了分工）。模板在这里：`.trae/skills/create-industry-skill/references/templates/case-TEMPLATE.md`
+>
+> 为什么必须你写？看【create-industry-skill Skill Step4】里的解释：Agent 默认会假设你提问信息完备、用专业术语，但真实场景你就是用口语、缺信息、带个人背景，你自己写的 case 测出来的 Skill 才真实好用。
 
 **作用**：**在 AI 给你产出 Skill/方案之前，你先定好「测试用例」**。这样产出的方案你能立刻用真实场景验证效果，而不是等拿到手才发现「看起来很专业，但放到我身上就不会用了」。
 
@@ -142,7 +166,11 @@
 
 ---
 
-### 2.3 第三步：plan.md — 「找现成的，不要从零造」
+### 2.3 第三步：plan.md — 「找现成的，不要从零造」【对应 create-industry-skill Skill Step2】
+
+> 🚀 **这一步 Agent 全做，你只负责看图和确认**。模板在这里：`.trae/skills/create-industry-skill/references/templates/plan-TEMPLATE.md`
+>
+> GitHub 筛选 4 个避坑标准是核心（见下表格），**star 再高不满足核心匹配度也直接排除**。营养师项目里 90% 的高 star 项目就是因为这个被排掉的（它们只是食谱生成器，没有证据链）。
 
 **作用**：**不要让 AI 凭空编一套新方案出来**（这样最容易幻觉），而是让它先去 GitHub / 开源社区搜「已经被很多人用过、star 高的现成 Skill/Prompt 项目」，筛选后告诉你：哪些方案好、为什么、最终推荐怎么组合。
 
@@ -177,9 +205,11 @@
 
 ---
 
-## 三、让 AI 输出「看起来能信」的结构性设计（核心！）
+## 三、让 AI 输出「看起来能信」的结构性设计（核心！）【对应 create-industry-skill Skill Step3 准出规范 acceptance-specs】
 
-前面的 originPrd/case/plan 是「输入端」的约束，**真正让输出可信，要靠「输出端」的结构强制**。这是营养师 Skill 的核心设计，你可以套用到任何陌生领域。
+前面的 originPrd/case/plan 是「输入端」的约束，**真正让输出可信，要靠「输出端」的结构强制**。这部分 create-industry-skill 已经写死在 acceptance-specs-TEMPLATE.md 里了，**通用部分你不用改**，只要补行业特殊规则就行。
+
+> 🚀 **直接用的模板在这里**：`.trae/skills/create-industry-skill/references/templates/acceptance-specs-TEMPLATE.md` — 包含完整的 6 段结构定义、三档证据分级标准、检索源白名单、验收 Checklist（13 条）。
 
 ### 3.1 「可信任 AI 输出」的 6 段结构（任意领域通用）
 
@@ -222,7 +252,16 @@ AI 推荐的检索源必须在白名单里，**禁止推荐百度知道/小红�
 
 ---
 
-## 四、完整案例复盘：营养师 Skill 项目
+## 四、完整案例复盘：营养师 Skill 项目【对应 create-industry-skill references/food-skill-example/ 示例目录】
+
+> 📁 **完整示例文件全部内置在 Skill 的 references 里了**：`.trae/skills/create-industry-skill/references/food-skill-example/`，共 6 个文件：
+> - 1-originPrd-example.md（看模糊诉求→结构化PRD）
+> - 2-plan-example.md（看 GitHub 调研筛选逻辑+对比表）
+> - 3-acceptance-specs-example.md（看行业特殊规则怎么写）
+> - 4-case-example.md（看用户怎么用口语写 case）
+> - 5/6-case1/2-output-example.md（看满足准出的合格输出长什么样）
+>
+> 下面是复盘（和你实际调用 Skill 产出的流程一一对应）：
 
 ### 4.1 三个文件长什么样？
 
@@ -317,3 +356,33 @@ plan.md 筛选出了 3 个合格项目，但单个都不完美：
    - 官网：https://www.cochranelibrary.com
 3. **PICO 框架** — 把临床/决策问题转化成可检索关键词的标准格式（Population/Intervention/Comparison/Outcome）
    - 适用场景：任何需要精确检索文献的领域
+
+---
+
+## 附录：create-industry-skill Skill 关键文件索引（不用找，直接点）
+
+### Skill 核心
+| 文件 | 作用 | 什么时候打开 |
+|------|------|-----------|
+| [SKILL.md](file:///d:/clawProject/zero_point/frontend-rag-knowledge-base/.trae/skills/create-industry-skill/SKILL.md) | Skill 主文件，5 步标准化流程 + 分工表 + 准出条件 | 每次用 Skill 前先快速扫一眼流程 |
+
+### 直接套用的 4 个模板（复制填空就行）
+> 位置：`.trae/skills/create-industry-skill/references/templates/`
+| 模板文件 | 对应哪一步 | 你做什么 |
+|---------|-----------|---------|
+| [originPrd-TEMPLATE.md](file:///d:/clawProject/zero_point/frontend-rag-knowledge-base/.trae/skills/create-industry-skill/references/templates/originPrd-TEMPLATE.md) | Step1 PRD | 你只负责 Review Agent 提炼的结果，必要时改一改【填这里】 |
+| [plan-TEMPLATE.md](file:///d:/clawProject/zero_point/frontend-rag-knowledge-base/.trae/skills/create-industry-skill/references/templates/plan-TEMPLATE.md) | Step2 调研 | Agent 按这个结构填，你只负责看表格确认推荐 |
+| [acceptance-specs-TEMPLATE.md](file:///d:/clawProject/zero_point/frontend-rag-knowledge-base/.trae/skills/create-industry-skill/references/templates/acceptance-specs-TEMPLATE.md) | Step3 准出 | 通用部分（6段+证据分级+白名单）不用改，你只填第二章「行业特殊规则」 |
+| [case-TEMPLATE.md](file:///d:/clawProject/zero_point/frontend-rag-knowledge-base/.trae/skills/create-industry-skill/references/templates/case-TEMPLATE.md) | Step4 case | **必须你自己写**，用你真实会问的口吻写 2~3 个场景 |
+
+### 完整示例（对照参考，全是营养师项目的实际产出）
+> 位置：`.trae/skills/create-industry-skill/references/food-skill-example/`
+> 说明：只看「结构怎么写、流程怎么走」，不要直接复制营养行业的具体业务内容（换行业没用）。
+| 示例文件 | 看什么 |
+|---------|-------|
+| [1-originPrd-example.md](file:///d:/clawProject/zero_point/frontend-rag-knowledge-base/.trae/skills/create-industry-skill/references/food-skill-example/1-originPrd-example.md) | 用户一段碎碎念 → 结构化 4 要素 PRD 的转化实例 |
+| [2-plan-example.md](file:///d:/clawProject/zero_point/frontend-rag-knowledge-base/.trae/skills/create-industry-skill/references/food-skill-example/2-plan-example.md) | GitHub 调研 → 方案对比表（含高 star 项目怎么筛掉不合格的）|
+| [3-acceptance-specs-example.md](file:///d:/clawProject/zero_point/frontend-rag-knowledge-base/.trae/skills/create-industry-skill/references/food-skill-example/3-acceptance-specs-example.md) | 行业特殊规则怎么写（营养行业本土化+补剂规则+红线指征实例）|
+| [4-case-example.md](file:///d:/clawProject/zero_point/frontend-rag-knowledge-base/.trae/skills/create-industry-skill/references/food-skill-example/4-case-example.md) | 用户用口语、缺信息的方式写 case 实例（故意含营销陷阱场景）|
+| [5-case1-output-example.md](file:///d:/clawProject/zero_point/frontend-rag-knowledge-base/.trae/skills/create-industry-skill/references/food-skill-example/5-case1-output-example.md) | 满足准出规范的「合格输出」长什么样（6段结构全、证据分级全、检索关键词全）|
+| [6-case2-output-example.md](file:///d:/clawProject/zero_point/frontend-rag-knowledge-base/.trae/skills/create-industry-skill/references/food-skill-example/6-case2-output-example.md) | 碰到常见营销骗局场景，合格 Skill 怎么破局（常识级 Strong 证据直接戳穿误区 + 红线就医指征）|
