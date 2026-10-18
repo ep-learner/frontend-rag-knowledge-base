@@ -56,6 +56,8 @@ frontend-rag-knowledge-base/
 │   ├── current-state.md       # 当前状态/待办
 │   └── work-log/              # 工作日志
 │
+├── 🛠️ tools/                  # 本地工具（merge-bili-video 视频合并 / merge-bili-mp3 音频提取）
+│
 ├── 🏗️ ARCHITECTURE.md         # 技术架构文档
 ├── 🤖 AGENT.md                # Agent 入口指南
 └── 📖 README.md               # 你正在看的

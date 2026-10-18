@@ -6,6 +6,7 @@ import documentsRouter from './routes/documents';
 import chatRouter from './routes/chat';
 import contentRouter from './routes/content';
 import mergeRouter from './routes/merge';
+import mp3Router from './routes/mp3';
 import { chromaService } from './services/chroma';
 import { error as apiError, ErrorCode } from './utils/response';
 
@@ -23,6 +24,7 @@ app.use('/api/documents', documentsRouter);
 app.use('/api/chat', chatRouter);
 app.use('/api/content', contentRouter);
 app.use('/api/merge', mergeRouter);
+app.use('/api/mp3', mp3Router);
 
 app.get('/api/health', (req, res) => {
   res.json({

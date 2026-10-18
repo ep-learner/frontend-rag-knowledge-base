@@ -1,10 +1,27 @@
 import { useEffect, useRef, useState } from 'react'
 import { FolderInput, FolderOutput, Play, Search, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
-import { mergeAPI, MergeScanResult, MergeStatus } from '../api/client'
+import { mergeAPI, mp3API, MergeScanResult, MergeStatus } from '../api/client'
+
+type Mode = 'video' | 'audio'
+const MODE_CONF: Record<Mode, { api: typeof mergeAPI; outputDefault: string; desc: string; verb: string }> = {
+  video: {
+    api: mergeAPI,
+    outputDefault: 'D:\\临时文件\\output',
+    desc: '合并为完整 MP4（含封面，无损流复制）',
+    verb: '合并',
+  },
+  audio: {
+    api: mp3API,
+    outputDefault: 'D:\\临时文件\\output_mp3',
+    desc: '仅提取音频，拷贝改名为 .mp3（不重编码，秒级完成）',
+    verb: '提取',
+  },
+}
 
 export default function MergePage() {
+  const [mode, setMode] = useState<Mode>('video')
   const [input, setInput] = useState('D:\\临时文件\\down_data')
-  const [output, setOutput] = useState('D:\\临时文件\\output')
+  const [output, setOutput] = useState(MODE_CONF.video.outputDefault)
   const [scan, setScan] = useState<MergeScanResult | null>(null)
   const [status, setStatus] = useState<MergeStatus | null>(null)
   const [error, setError] = useState('')
@@ -15,6 +32,16 @@ export default function MergePage() {
   const progress = status?.progress
   const result = status?.lastResult
   const pct = progress && progress.total > 0 ? Math.round((progress.current / progress.total) * 100) : 0
+  const conf = MODE_CONF[mode]
+
+  const switchMode = (m: Mode) => {
+    if (isRunning || m === mode) return
+    setMode(m)
+    setOutput(MODE_CONF[m].outputDefault)
+    setScan(null)
+    setStatus(null)
+    setError('')
+  }
 
   // 组件卸载时停止轮询
   useEffect(() => {
@@ -27,7 +54,7 @@ export default function MergePage() {
     if (timerRef.current) window.clearInterval(timerRef.current)
     timerRef.current = window.setInterval(async () => {
       try {
-        const s = await mergeAPI.getStatus()
+        const s = await conf.api.getStatus()
         setStatus(s)
         if (!s.isRunning && timerRef.current) {
           window.clearInterval(timerRef.current)
@@ -44,7 +71,7 @@ export default function MergePage() {
     setScan(null)
     setScanning(true)
     try {
-      const r = await mergeAPI.scan(input.trim())
+      const r = await conf.api.scan(input.trim())
       setScan(r)
     } catch (e: any) {
       setError(e.message || '扫描失败')
@@ -56,7 +83,7 @@ export default function MergePage() {
   const handleStart = async () => {
     setError('')
     try {
-      await mergeAPI.start(input.trim(), output.trim())
+      await conf.api.start(input.trim(), output.trim())
       setStatus({ isRunning: true, startTime: Date.now(), endTime: null, progress: null, lastResult: null })
       startPolling()
     } catch (e: any) {
@@ -66,10 +93,27 @@ export default function MergePage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-10">
-      <h1 className="text-2xl font-bold text-gray-900 mb-2">B站视频合并</h1>
-      <p className="text-gray-500 text-sm mb-8">
-        扫描 B站下载目录（含 video.m4s / audio.m4s / cover.jpg / entry.json），合并为完整 MP4（含封面，无损流复制）。
+      <h1 className="text-2xl font-bold text-gray-900 mb-2">B站缓存处理</h1>
+      <p className="text-gray-500 text-sm mb-6">
+        扫描 B站下载目录（含 video.m4s / audio.m4s / cover.jpg / entry.json），{conf.desc}。
       </p>
+
+      <div className="flex gap-2 mb-6">
+        {(Object.keys(MODE_CONF) as Mode[]).map((m) => (
+          <button
+            key={m}
+            onClick={() => switchMode(m)}
+            disabled={isRunning}
+            className={`px-4 py-2 rounded-lg text-sm font-medium border transition-colors disabled:opacity-50 ${
+              mode === m
+                ? 'bg-blue-600 text-white border-blue-600'
+                : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'
+            }`}
+          >
+            {m === 'video' ? '合并视频 MP4' : '提取音频 MP3'}
+          </button>
+        ))}
+      </div>
 
       <div className="space-y-4 bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
         <div>
@@ -114,7 +158,7 @@ export default function MergePage() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700 disabled:opacity-50"
           >
             <Play className="w-4 h-4" />
-            {isRunning ? '合并中...' : '开始合并'}
+            {isRunning ? `${conf.verb}中...` : `开始${conf.verb}`}
           </button>
         </div>
       </div>
@@ -128,7 +172,7 @@ export default function MergePage() {
 
       {scan && !isRunning && (
         <div className="mt-4 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3 text-sm text-gray-700">
-          共发现 <b>{scan.count}</b> 个可合并视频
+          共发现 <b>{scan.count}</b> 个可{conf.verb}项
           {scan.titles.length > 0 && (
             <ul className="mt-2 space-y-1 text-gray-500 list-disc list-inside">
               {scan.titles.map((t, i) => (
@@ -143,7 +187,7 @@ export default function MergePage() {
       {(isRunning || result) && (
         <div className="mt-4 bg-white rounded-xl border border-gray-200 p-6 shadow-sm">
           <div className="flex justify-between text-sm text-gray-600 mb-2">
-            <span>{isRunning ? '正在合并' : '合并完成'}</span>
+            <span>{isRunning ? `正在${conf.verb}` : `${conf.verb}完成`}</span>
             <span>{progress ? `${progress.current}/${progress.total}` : ''}</span>
           </div>
           <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">

@@ -102,3 +102,23 @@ node tools/merge-bili-video/merge.mjs --input "D:\临时文件\down_data" --outp
 - `tools/merge-bili-video/server.mjs`：Express 极简服务，复用 merge.mjs 的核心函数。
 - 主页加入口（React 组件，极简表单）：目录输入×2 + 开始按钮 + 进度文本。
 - 二期目标优先跑通，UI 不做样式打磨。
+
+---
+
+## 五、三期变更记录（2026-10-19，已交付并验证）
+
+### 变更内容
+
+1. **新增音频提取能力**：`tools/merge-bili-mp3/mp3-core.mjs`（scanJobs/sanitize/runMp3，纯 Node 无 ffmpeg 依赖），
+   方案为用户拍板的轻量版：拷贝 audio.m4s → `sanitize(title).mp3`，不重编码（文件内容仍是 AAC）。
+   曾实现 ffmpeg 重编码方案（libmp3lame 320k，37 条约 20 分钟），因体感太慢被用户否决，git 历史可查。
+2. **入口合并**：音频提取并入「视频合并」页（MergePage 顶部模式切换），删除独立 Mp3Page/导航项/首页卡片；
+   后端 `/api/merge` 与 `/api/mp3` 两套路由保留不动，前端按模式切换调用。
+3. **CLI 统一**：`merge.mjs` 增加 `--mode video|audio`（默认 video），audio 分支复用 mp3-core；
+   `merge-bili-mp3/mp3.mjs` 保留为独立便捷入口。
+
+### 验证结果
+
+- CLI：`--mode video --limit 2` → 2 个 mp4（1.4s）；`--mode audio --limit 2` → 2 个 mp3（0s）
+- API：`/api/merge/scan` 与 `/api/mp3/scan` 均正常返回 count=2（测试目录）
+- client `tsc --noEmit` 通过；按用户要求本次变更不截图

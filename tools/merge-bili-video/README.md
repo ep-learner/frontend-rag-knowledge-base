@@ -3,6 +3,8 @@
 把 B站客户端下载的拆分缓存（video.m4s + audio.m4s + cover.jpg + entry.json）批量合并为完整 MP4。
 无损流复制（不重编码），封面嵌入容器元数据，37 个视频实测约 27 秒。
 
+**2026-10-19 起支持双模式**：同一入口还可「提取音频」（拷贝 audio.m4s 改名为 .mp3，不重编码，37 个 0.6 秒）。
+
 ---
 
 ## 一、小白使用手册
@@ -13,16 +15,20 @@
    （会自动安装依赖并启动前后端，弹出两个 PowerShell 窗口，不要关）
 2. 浏览器打开 http://localhost:5173
 3. 点首页「视频合并」卡片（或顶部导航「视频合并」）
-4. 填两个目录：
+4. 页面顶部选模式：「合并视频 MP4」或「提取音频 MP3」
+5. 填两个目录：
    - 输入目录：B站缓存根目录，例如 `D:\临时文件\down_data`
-   - 输出目录：MP4 存放目录，例如 `D:\临时文件\output`
-5. 点「扫描预览」确认数量 → 点「开始合并」→ 看进度条跑完即可
-6. 已存在的文件会自动跳过，重复点不会重复合并
+   - 输出目录：产物存放目录（视频默认 `D:\临时文件\output`，音频默认 `D:\临时文件\output_mp3`）
+6. 点「扫描预览」确认数量 → 点「开始合并/提取」→ 看进度条跑完即可
+7. 已存在的文件会自动跳过，重复点不会重复处理
 
 ### 方式 B：命令行
 
 ```powershell
+# 合并视频（默认模式）
 node tools\merge-bili-video\merge.mjs --input "D:\临时文件\down_data" --output "D:\临时文件\output"
+# 提取音频（拷贝改名，不需要 ffmpeg）
+node tools\merge-bili-video\merge.mjs --input "D:\临时文件\down_data" --output "D:\临时文件\output_mp3" --mode audio
 # 可选 --limit 2 只处理前两个（测试用）
 ```
 
@@ -48,17 +54,20 @@ node tools\merge-bili-video\merge.mjs --input "D:\临时文件\down_data" --outp
 ```
 tools/merge-bili-video/
 ├── merge-core.mjs      # 核心逻辑（ESM）：ensureFfmpeg / scanJobs / sanitize / runMerge
-├── merge.mjs           # CLI 薄封装（进度条渲染 + 参数解析）
+├── merge.mjs           # CLI 薄封装（进度条 + 参数解析，--mode video|audio）
 ├── bin/ffmpeg/         # ffmpeg 自动下载缓存（.gitignore 已排除）
 └── screenshots/        # 二期 UI 验收截图
+
+tools/merge-bili-mp3/   # 音频提取核心（mp3-core.mjs 被 merge.mjs --mode audio 与 /api/mp3 复用）
 ```
 
 改动涉及：
-- `server/src/routes/merge.ts` — API 路由（POST /scan、POST /start、GET /status 轮询）
-- `server/src/app.ts` — 挂载 `/api/merge`
-- `client/src/pages/MergePage.tsx` — 页面
-- `client/src/api/client.ts` — mergeAPI
-- `client/src/App.tsx`、`pages/HomePage.tsx`、`components/Layout.tsx` — 路由与入口
+- `server/src/routes/merge.ts` — 视频合并 API（POST /scan、POST /start、GET /status 轮询）
+- `server/src/routes/mp3.ts` — 音频提取 API（同模式，复用 tools/merge-bili-mp3/mp3-core.mjs）
+- `server/src/app.ts` — 挂载 `/api/merge` 与 `/api/mp3`
+- `client/src/pages/MergePage.tsx` — 页面（顶部模式切换：合并视频 / 提取音频）
+- `client/src/api/client.ts` — mergeAPI + mp3API
+- `client/src/App.tsx`、`pages/HomePage.tsx`、`components/Layout.tsx` — 路由与入口（单入口「视频合并」）
 
 ### 关键设计（改动前必读）
 

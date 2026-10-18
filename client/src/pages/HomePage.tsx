@@ -40,7 +40,7 @@ export default function HomePage() {
     {
       icon: Clapperboard,
       title: '视频合并',
-      description: '将 B站下载的拆分音视频合并为完整 MP4（含封面）',
+      description: 'B站缓存一站式处理：合并 MP4（含封面）或提取音频 MP3',
       link: '/merge',
       color: 'from-orange-500 to-orange-600',
     },

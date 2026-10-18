@@ -6,19 +6,23 @@
  *       合并为 <output>/<标题>.mp4（音频+视频流复制无损，封面嵌入为容器元数据 attached_pic）。
  *
  * 用法：
- *   node merge.mjs --input "D:\临时文件\down_data" --output "D:\临时文件\output" [--limit 2]
+ *   node merge.mjs --input "D:\临时文件\down_data" --output "D:\临时文件\output" [--limit 2] [--mode video|audio]
  *
- * 依赖：Node 18+。ffmpeg 缺失时自动下载到本目录 bin/ffmpeg/ 缓存（无需管理员权限）。
+ * --mode video（默认）：合并为 mp4；--mode audio：仅提取音频，拷贝 audio.m4s 改名为 <标题>.mp3（不重编码）。
+ *
+ * 依赖：Node 18+。ffmpeg 缺失时自动下载到本目录 bin/ffmpeg/ 缓存（无需管理员权限，audio 模式不需要 ffmpeg）。
  */
 import { runMerge } from './merge-core.mjs';
+import { runMp3 } from '../merge-bili-mp3/mp3-core.mjs';
 
 function parseArgs(argv) {
-  const args = { input: 'D:\\临时文件\\down_data', output: 'D:\\临时文件\\output', limit: 0 };
+  const args = { input: 'D:\\临时文件\\down_data', output: 'D:\\临时文件\\output', limit: 0, mode: 'video' };
   for (let i = 0; i < argv.length; i++) {
     const k = argv[i];
     if (k === '--input') args.input = argv[++i];
     else if (k === '--output') args.output = argv[++i];
     else if (k === '--limit') args.limit = parseInt(argv[++i], 10) || 0;
+    else if (k === '--mode') args.mode = argv[++i];
     else if (k === '--help' || k === '-h') args.help = true;
   }
   return args;
@@ -36,11 +40,18 @@ function bar(done, total, label) {
 async function main() {
   const args = parseArgs(process.argv.slice(2));
   if (args.help) {
-    console.log('用法: node merge.mjs --input <视频根目录> --output <输出目录> [--limit N]');
+    console.log('用法: node merge.mjs --input <视频根目录> --output <输出目录> [--limit N] [--mode video|audio]');
     process.exit(0);
   }
+  if (!['video', 'audio'].includes(args.mode)) {
+    console.error('--mode 仅支持 video 或 audio');
+    process.exit(1);
+  }
 
-  const r = await runMerge({
+  const run = args.mode === 'audio' ? runMp3 : runMerge;
+  const verb = args.mode === 'audio' ? '提取中' : '合并中';
+
+  const r = await run({
     input: args.input,
     output: args.output,
     limit: args.limit,
@@ -48,7 +59,7 @@ async function main() {
     onProgress: ({ current, total, title, phase }) => {
       if (phase === 'done') return;
       const short = title.length > 24 ? title.slice(0, 24) + '...' : title;
-      bar(current, total, `合并中: ${short}`);
+      bar(current, total, `${verb}: ${short}`);
     },
   });
 

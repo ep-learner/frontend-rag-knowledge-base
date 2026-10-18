@@ -346,4 +346,20 @@ export const mergeAPI = {
   },
 }
 
+// ==================== Mp3 API（B站音频提取） ====================
+
+export const mp3API = {
+  scan: async (input: string): Promise<MergeScanResult> => {
+    const response = await api.post<ApiResponse<MergeScanResult>>('/mp3/scan', { input })
+    return response.data.data as MergeScanResult
+  },
+  start: async (input: string, output: string): Promise<void> => {
+    await api.post('/mp3/start', { input, output })
+  },
+  getStatus: async (): Promise<MergeStatus> => {
+    const response = await api.get<ApiResponse<MergeStatus>>('/mp3/status')
+    return response.data.data as MergeStatus
+  },
+}
+
 export default api

@@ -193,3 +193,22 @@
 | create-industry-skill 营养师示例（6个） | `../.trae/skills/create-industry-skill/references/food-skill-example/` |
 
 
+
+
+---
+
+## 2026-10-19 B站缓存处理双模式 + local-tool-pipeline skill
+
+**当前焦点**：无进行中任务，本轮全部交付完毕。
+
+- **merge_video 三期**：音频提取并入「视频合并」页（MergePage 顶部模式切换 video/audio），
+  删除独立 Mp3Page/导航/首页卡片；`merge.mjs --mode video|audio` 统一 CLI。
+  后端 `/api/merge` + `/api/mp3` 双路由保留。API_DOCS.md 已补第 8 节。
+- **merge_mp3 已交付**：轻量方案（拷贝 audio.m4s 改名 .mp3，不重编码，37 个 0.6s），
+  产物 `D:\临时文件\output_mp3`。重编码方案（libmp3lame，约20min）被用户否决，git 历史可查。
+  注意：.mp3 内容实为 AAC，老设备可能播不了。
+- **新 skill**：`.trae/skills/local-tool-pipeline/`（PRD→澄清→方案确认→CLI小量验证→全量→主页集成→截图验收
+  全流程 + Node 通用坑清单 + references/integration-patterns.md 代码模板）。
+  能力边界：本地、单用户、批处理、产物是文件；不含持久化/并发/复杂交互。
+- **关键坑**：改 tools/*/core.mjs 后需触动 server/src 文件触发 ts-node-dev 重载（corePromise 有缓存）；
+  Vite ERR_CACHE_READ_FAILURE 需删 client/node_modules/.vite 重启前端。

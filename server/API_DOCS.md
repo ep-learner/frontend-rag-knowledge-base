@@ -552,3 +552,24 @@ data: {"content": "", "done": true}
 
 ---
 
+
+
+## 8. 本地工具接口（B站缓存处理）
+
+工具逻辑在 `tools/merge-bili-video`（视频合并）与 `tools/merge-bili-mp3`（音频提取），
+server 通过动态 import 加载 core.mjs；任务状态为内存态，前端 1s 轮询，同一时刻仅允许一个任务。
+
+### 8.1 视频合并 `/api/merge`
+
+| 接口 | 说明 | 请求体 |
+|------|------|--------|
+| `POST /api/merge/scan` | 扫描输入目录，返回可合并数量与前10个标题 | `{ "input": "D:\\...\\down_data" }` |
+| `POST /api/merge/start` | 异步启动合并，立即返回 | `{ "input": "...", "output": "...", "limit": 0 }` |
+| `GET /api/merge/status` | 查询运行态/进度/最近结果 | 无 |
+
+### 8.2 音频提取 `/api/mp3`
+
+端点与请求体同 8.1，路径换为 `/api/mp3`。方案为拷贝 audio.m4s 改名 .mp3（不重编码）。
+
+- status 返回 data：`{ isRunning, startTime, endTime, progress: {current,total,currentTitle}, lastResult: {success,skipped,failed,total,durationSec,outputDir,failures,error?} }`
+- 409：任务进行中重复 start；400：缺 input/output 或目录不存在
