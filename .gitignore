@@ -11,3 +11,4 @@ server/chroma-db/
 server/logs/
 *.local
 .tmp/
+tools/merge-bili-video/bin/

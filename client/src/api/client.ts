@@ -307,4 +307,43 @@ export const contentAPI = {
   },
 }
 
+// ==================== Merge API（B站视频合并） ====================
+
+export interface MergeScanResult {
+  count: number
+  titles: string[]
+  truncated: boolean
+}
+
+export interface MergeStatus {
+  isRunning: boolean
+  startTime: number | null
+  endTime: number | null
+  progress: { current: number; total: number; currentTitle: string } | null
+  lastResult: {
+    success: number
+    skipped: number
+    failed: number
+    total: number
+    durationSec: number
+    outputDir: string
+    failures: Array<{ title: string; err: string }>
+    error?: string
+  } | null
+}
+
+export const mergeAPI = {
+  scan: async (input: string): Promise<MergeScanResult> => {
+    const response = await api.post<ApiResponse<MergeScanResult>>('/merge/scan', { input })
+    return response.data.data as MergeScanResult
+  },
+  start: async (input: string, output: string): Promise<void> => {
+    await api.post('/merge/start', { input, output })
+  },
+  getStatus: async (): Promise<MergeStatus> => {
+    const response = await api.get<ApiResponse<MergeStatus>>('/merge/status')
+    return response.data.data as MergeStatus
+  },
+}
+
 export default api

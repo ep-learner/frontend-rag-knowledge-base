@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { MessageSquare, BookOpen, Sparkles } from 'lucide-react'
+import { MessageSquare, BookOpen, Sparkles, Clapperboard } from 'lucide-react'
 import { contentAPI, ContentStats } from '../api/client'
 
 export default function HomePage() {
@@ -37,6 +37,13 @@ export default function HomePage() {
       link: '/knowledge',
       color: 'from-purple-500 to-purple-600',
     },
+    {
+      icon: Clapperboard,
+      title: '视频合并',
+      description: '将 B站下载的拆分音视频合并为完整 MP4（含封面）',
+      link: '/merge',
+      color: 'from-orange-500 to-orange-600',
+    },
   ]
 
   return (
@@ -56,7 +63,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-16">
           {entries.map((entry) => {
             const Icon = entry.icon
             return (

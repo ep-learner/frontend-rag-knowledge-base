@@ -1,5 +1,5 @@
 import { Outlet, Link, useLocation } from 'react-router-dom'
-import { Home, MessageSquare, BookMarked } from 'lucide-react'
+import { Home, MessageSquare, BookMarked, Clapperboard } from 'lucide-react'
 
 export default function Layout() {
   const location = useLocation()
@@ -8,6 +8,7 @@ export default function Layout() {
     { path: '/', label: '首页', icon: Home },
     { path: '/knowledge', label: '知识库', icon: BookMarked },
     { path: '/chat', label: '问答', icon: MessageSquare },
+    { path: '/merge', label: '视频合并', icon: Clapperboard },
   ]
 
   const isKnowledgeActive = location.pathname.startsWith('/knowledge')

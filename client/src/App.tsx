@@ -4,6 +4,7 @@ import HomePage from './pages/HomePage'
 import ChatPage from './pages/ChatPage'
 import KnowledgePage from './pages/KnowledgePage'
 import ProjectDetailPage from './pages/ProjectDetailPage'
+import MergePage from './pages/MergePage'
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
           <Route path="chat" element={<ChatPage />} />
           <Route path="knowledge" element={<KnowledgePage />} />
           <Route path="knowledge/projects/:id" element={<ProjectDetailPage />} />
+          <Route path="merge" element={<MergePage />} />
           <Route path="documents" element={<Navigate to="/knowledge" replace />} />
         </Route>
       </Routes>
